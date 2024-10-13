@@ -13,7 +13,7 @@ SOURCES = ./main.cpp ./asm.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
-EXECUTABLE = asm.exe
+EXECUTABLE = asm
 
 all: $(SOURCES) $(INCLUDES) $(EXECUTABLE)
 
@@ -27,4 +27,4 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	rm -rf *.o
 	rm -rf code.txt
-	rm -rf asm.exe
+	rm -rf asm

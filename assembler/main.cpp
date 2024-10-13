@@ -1,19 +1,23 @@
 #include "asm.hpp"
 
 int main(void) {
-    Buffer buff = {};
-    BuffCtor(&buff);
-    // PartitionedBuffer prtbuff = {};
-    // PartBuffCtor(&prtbuff, &buff);
-    // for(long int i = 0; i < buff.size_of_file; i++) {
-    //     printf("%c", buff.buffer[i]);
-    // }
-    PartitionedBuffer prtbuff = {};
-    PartBuffCtor(&prtbuff, &buff);
-    // printf("%d\n", count_num_of_symbols(&buff));
-    // for(int i = 0; i < prtbuff.size_of_part_buffer; i++) {
-    //     printf("%s\n", *(prtbuff.part_buffer + i));
-    // }
-    AsmRun(&prtbuff);
+    Errors err = NO_ERROR;
+    Assembler asmblr = {0};
+    AsmCtor(&asmblr);
+    printf("%d\n", asmblr.n_words);
+    printf("%d\n", asmblr.size_file);
+    CHECKED_ Parcing(&asmblr);
+    for(int i = 0; i < asmblr.n_cmd; i++) {
+        printf("%s\n", asmblr.cmd[i].cmd);
+    }
+    CHECKED_ CommandsParcing(&asmblr);
+    for(int i = 0; i < asmblr.n_words; i++) {
+        printf("%lf ", asmblr.buf_output[i]);
+    }
+    printf("\n");
+    for(int i = 0; i < asmblr.n_cmd; i++) {
+        printf("%d %lf %d\n", asmblr.cmd[i].cmd_code, asmblr.cmd[i].argc, asmblr.cmd[i].reg);
+    }
+
     return 0;
 }

@@ -1,47 +1,95 @@
 #include "asm.hpp"
 
 long int count_size_file(FILE* program) {
-    struct stat buff;
+    MY_ASSERT(program != NULL, FILE_ERROR);
+    struct stat buff = {};
     fstat(fileno(program), &buff);
     return buff.st_size;
 }
 
-Errors BuffCtor(Buffer* buff) {
-    MY_ASSERT(buff != NULL, PTR_ERROR);
+Errors AsmCtor(Assembler* asmblr) {
 
-    FILE* program = fopen("program.txt", "rb");
+    Errors err = NO_ERROR;
 
-    if(program != NULL) {
-        buff->size_of_file = count_size_file(program);
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    asmblr->file_name_input = "program.txt";
 
-        buff->buffer = (char*)calloc(buff->size_of_file + 1, sizeof(char));
-        fread(buff->buffer, sizeof(char), buff->size_of_file, program);
-    }
+    CHECKED_ ProgramInput(asmblr);
 
-    else {
-        fprintf(stderr, "file with program did not open(\n");
-    }
-
-    if(fclose(program)) {
-        fprintf(stderr, "file with program did not close(\n");
-    }
+    asmblr->n_cmd = count_num_of_cmds(asmblr);
+    asmblr->n_words = count_num_of_words(asmblr);
 
     return NO_ERROR;
 }
 
-Errors PartBuffCtor(PartitionedBuffer* prtbuff, const Buffer* buff) {
-    MY_ASSERT(buff != NULL, PTR_ERROR);
-    MY_ASSERT(prtbuff != NULL, PTR_ERROR);
+Errors ProgramInput(Assembler* asmblr) {
 
-    prtbuff->size_of_part_buffer = count_num_of_symbols(buff);
-    prtbuff->part_buffer = (char**)calloc(prtbuff->size_of_part_buffer, sizeof(char*));
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
-    prtbuff->part_buffer[0] = buff->buffer;
+    FILE* program = fopen(asmblr->file_name_input, "rb");
+    MY_ASSERT(program != NULL, FILE_ERROR);
+
+    asmblr->size_file = count_size_file(program);
+
+    asmblr->buf_input = (char*)calloc(asmblr->size_file, sizeof(char));
+    MY_ASSERT(asmblr->buf_input, PTR_ERROR);
+
+    fread(asmblr->buf_input, sizeof(char), asmblr->size_file, program);
+
+    MY_ASSERT(fclose(program) == 0,FILE_ERROR);
+
+    return NO_ERROR;
+}
+
+int count_num_of_words(const Assembler* asmblr) {
+    int counter_words = 0;
+
+    for(int i = 0; i < asmblr->size_file; i++) {
+        if(asmblr->buf_input[i] == '\n' || asmblr->buf_input[i] == ' ' || asmblr->buf_input[i] == '\t') {
+            if(asmblr->buf_input[i + 1] == '\n' || asmblr->buf_input[i + 1] == ' ' || asmblr->buf_input[i + 1] == '\t') {
+                continue;
+            }
+            counter_words++;
+        }
+    }
+
+    return counter_words;
+}
+
+int count_num_of_cmds(const Assembler* asmblr) {
+    int counter_cmds = 0;
+
+    for(int i = 0; i < asmblr->size_file; i++) {
+        if(asmblr->buf_input[i] == '\n') {
+            if(asmblr->buf_input[i + 1] == '\n') {
+                continue;
+            }
+            counter_cmds++;
+        }
+    }
+
+    return counter_cmds;
+}
+
+Errors Parcing(Assembler* asmblr) {
+
+    asmblr->cmd = (Command*) calloc(asmblr->n_cmd, sizeof(Command));
+    MY_ASSERT(asmblr->cmd, PTR_ERROR);
+
+    asmblr->cmd[0].cmd = asmblr->buf_input;
     int j = 1;
-    for(long int i = 0; i < buff->size_of_file; i++) {
-        if(buff->buffer[i] == '\n' || buff->buffer[i] == ' ' || buff->buffer[i] == '\0') {
-            prtbuff->part_buffer[j] = (buff->buffer + i + 1);
-            buff->buffer[i] = '\0';
+
+    for(int i = 0; i < asmblr->size_file; i++) {
+
+        if(asmblr->buf_input[i] == '\n') { //ебучие пустые символы???????????????????????????????????? он не видит последнюю команду пробелы и табы
+
+            if(asmblr->buf_input[i + 1] == '\n' || asmblr->buf_input[i + 1] == ' ' || asmblr->buf_input[i + 1] == '\t') {
+                asmblr->buf_input[i] = '\0';
+                continue;
+            }
+
+            asmblr->buf_input[i] = '\0';
+            asmblr->cmd[j].cmd = (asmblr->buf_input + i + 1);
             j++;
         }
     }
@@ -49,74 +97,135 @@ Errors PartBuffCtor(PartitionedBuffer* prtbuff, const Buffer* buff) {
     return NO_ERROR;
 }
 
-int count_num_of_symbols(const Buffer* buff) {
-    int counter_symbols = 0;
-    for (int i = 0; i <= buff->size_of_file; i++) {
-        if (buff->buffer[i] == '\n' || buff->buffer[i] == ' ' || buff->buffer[i] == '\0') {
-            counter_symbols++;
-        }
-    }
-    return counter_symbols;
-}
+Errors CommandsParcing(Assembler* asmblr) {
+    MY_ASSERT(asmblr, PTR_ERROR);
 
-Errors AsmRun(const PartitionedBuffer* prtbuff) {
-    MY_ASSERT(prtbuff != NULL, PTR_ERROR);
-    FILE* code = fopen("code.txt", "w+");
-    if(code != NULL) {
-        for(int i = 0; i < prtbuff->size_of_part_buffer; i++) {
-            char* cmd = prtbuff->part_buffer[i];
-            if (!strcmp(cmd, "hlt")) {
-                fprintf(code, "%d\n", CMD_HLT);
+    asmblr->buf_output = (StackElem_t*)calloc(asmblr->n_words, sizeof(StackElem_t));
+    MY_ASSERT(asmblr->buf_output, PTR_ERROR);
+
+    for(int i = 0, j = 0; i < asmblr->n_cmd; i++, j++) {
+        char* cmd = asmblr->cmd[i].cmd;
+
+        if (!strcmp(cmd, "hlt")) {
+            asmblr->cmd[i].cmd_code = CMD_HLT;
+            asmblr->buf_output[j] = (StackElem_t)CMD_HLT;
+        }
+        else if (!strcmp(cmd, "dump")) {
+            asmblr->cmd[i].cmd_code = CMD_DUMP;
+            asmblr->buf_output[j] = (StackElem_t)CMD_DUMP;
+        }
+        else if (!strcmp(cmd, "out")) {
+            asmblr->cmd[i].cmd_code = CMD_OUT;
+            asmblr->buf_output[j] = (StackElem_t)CMD_OUT;
+        }
+        else if (!strcmp(cmd, "in")) {
+            asmblr->cmd[i].cmd_code = CMD_IN;
+            asmblr->buf_output[j] = (StackElem_t)CMD_IN;
+        }
+        else if (!strncmp(cmd, "push", 4)) {
+            int cmd_check = CMD_PUSH;
+            asmblr->cmd[i].cmd_code = CMD_PUSH;
+            ArgumentsParcing(asmblr, i, CMD_PUSH);
+            asmblr->buf_output[j] = (StackElem_t)asmblr->cmd[i].cmd_code;
+            j++;
+            if(asmblr->cmd[i].cmd_code == (cmd_check | argc_mask)) {
+                asmblr->buf_output[j] = asmblr->cmd[i].argc;
             }
-            else if (!strcmp(cmd, "dump")) {
-                fprintf(code, "%d\n", CMD_DUMP);
-            }
-            else if (!strcmp(cmd, "out")) {
-                fprintf(code, "%d\n", CMD_OUT);
-            }
-            else if (!strcmp(cmd, "in")) {
-                fprintf(code, "%d\n", CMD_IN);
-            }
-            else if (!strcmp(cmd, "push")) {
-                i++;
-                fprintf(code, "%d %s\n", CMD_PUSH, prtbuff->part_buffer[i]);
-            }
-            else if (!strcmp(cmd, "pop")) {
-                fprintf(code, "%d\n", CMD_POP);
-            }
-            else if (!strcmp(cmd, "add")) {
-                fprintf(code, "%d\n", CMD_ADD);
-            }
-            else if (!strcmp(cmd, "sub")) {
-                fprintf(code, "%d\n", CMD_SUB);
-            }
-            else if (!strcmp(cmd, "mul")) {
-                fprintf(code, "%d\n", CMD_MUL);
-            }
-            else if (!strcmp(cmd, "div")) {
-                fprintf(code, "%d\n", CMD_DIV);
-            }
-            else if (!strcmp(cmd, "sqrt")) {
-                fprintf(code, "%d\n", CMD_SQRT);
-            }
-            else if (!strcmp(cmd, "sin")) {
-                fprintf(code, "%d\n", CMD_SIN);
-            }
-            else if (!strcmp(cmd, "cos")) {
-                fprintf(code, "%d\n", CMD_COS);
-            }
-            else {
-                fprintf(code, "SNTXERR: '%s'\n", cmd);
+            else if(asmblr->cmd[i].cmd_code == (cmd_check | reg_mask)) {
+                asmblr->buf_output[j] = (StackElem_t)asmblr->cmd[i].reg;
             }
         }
-    }
-
-    else {
-        fprintf(stderr, "file with code did not open(\n");
-    }
-
-    if(fclose(code)) {
-        fprintf(stderr, "file with code did not close(\n");
+        else if (!strncmp(cmd, "pop", 3)) {
+            int cmd_check = CMD_POP;
+            asmblr->cmd[i].cmd_code = CMD_POP;
+            ArgumentsParcing(asmblr, i, CMD_POP);
+            asmblr->buf_output[j] = (StackElem_t)asmblr->cmd[i].cmd_code;
+            if(asmblr->cmd[i].cmd_code == (cmd_check | reg_mask)) {
+                j++;
+                asmblr->buf_output[j] = (StackElem_t)asmblr->cmd[i].reg;
+            }
+        }
+        else if (!strcmp(cmd, "add")) {
+            asmblr->cmd[i].cmd_code = CMD_ADD;
+            asmblr->buf_output[j] = (StackElem_t)CMD_ADD;
+        }
+        else if (!strcmp(cmd, "sub")) {
+            asmblr->cmd[i].cmd_code = CMD_SUB;
+            asmblr->buf_output[j] = (StackElem_t)CMD_SUB;
+        }
+        else if (!strcmp(cmd, "mul")) {
+            asmblr->cmd[i].cmd_code = CMD_MUL;
+            asmblr->buf_output[j] = (StackElem_t)CMD_MUL;
+        }
+        else if (!strcmp(cmd, "div")) {
+            asmblr->cmd[i].cmd_code = CMD_DIV;
+            asmblr->buf_output[j] = (StackElem_t)CMD_DIV;
+        }
+        else if (!strcmp(cmd, "sqrt")) {
+            asmblr->cmd[i].cmd_code = CMD_SQRT;
+            asmblr->buf_output[j] = (StackElem_t)CMD_SQRT;
+        }
+        else if (!strcmp(cmd, "sin")) {
+            asmblr->cmd[i].cmd_code = CMD_SIN;
+            asmblr->buf_output[j] = (StackElem_t)CMD_SIN;
+        }
+        else if (!strcmp(cmd, "cos")) {
+            asmblr->cmd[i].cmd_code = CMD_COS;
+            asmblr->buf_output[j] = (StackElem_t)CMD_COS;
+        }
+        else {
+            fprintf(stderr, "SNTXERR: '%s'\n", cmd);
+        }
     }
     return NO_ERROR;
 }
+
+void ArgumentsParcing(Assembler* asmblr, int i, Commands_code code) {
+    if(code == CMD_PUSH) {
+        char* argc = &(asmblr->cmd[i].cmd[5]);
+        if(!strcmp(argc, "ax")) {
+            asmblr->cmd[i].reg = ax;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else if(!strcmp(argc, "bx")) {
+            asmblr->cmd[i].reg = bx;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else if(!strcmp(argc, "cx")) {
+            asmblr->cmd[i].reg = cx;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else if(!strcmp(argc, "dx")) {
+            asmblr->cmd[i].reg = dx;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else {
+            asmblr->cmd[i].argc = strtod(argc, NULL);
+            asmblr->cmd[i].cmd_code |= argc_mask;
+        }
+    }
+    else if(code == CMD_POP) {
+        char* argc = &(asmblr->cmd[i].cmd[4]);
+        if(!strcmp(argc, "ax")) {
+            asmblr->cmd[i].reg = ax;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else if(!strcmp(argc, "bx")) {
+            asmblr->cmd[i].reg = bx;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else if(!strcmp(argc, "cx")) {
+            asmblr->cmd[i].reg = cx;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+        else if(!strcmp(argc, "dx")) {
+            asmblr->cmd[i].reg = dx;
+            asmblr->cmd[i].cmd_code |= reg_mask;
+        }
+    }
+    else {
+        fprintf(stderr, "%d SNTXERR: '%s'\n", __LINE__, asmblr->cmd[i].cmd);
+    }
+}
+
+
