@@ -179,6 +179,70 @@ Errors CommandsParcing(Assembler* asmblr) {
             asmblr->cmd[i].cmd_code = CMD_COS;
             asmblr->buf_output[j] = CMD_COS;
         }
+        else if (!strncmp(cmd, "jae", 3)) {
+            char* argc = &(asmblr->cmd[i].cmd[4]);
+
+            asmblr->cmd[i].cmd_code = CMD_JAE;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+        else if (!strncmp(cmd, "ja", 2)) {
+            char* argc = &(asmblr->cmd[i].cmd[3]);
+
+            asmblr->cmd[i].cmd_code = CMD_JA;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+        else if (!strncmp(cmd, "jbe", 3)) {
+            char* argc = &(asmblr->cmd[i].cmd[4]);
+
+            asmblr->cmd[i].cmd_code = CMD_JBE;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+        else if (!strncmp(cmd, "jb", 2)) {
+            char* argc = &(asmblr->cmd[i].cmd[3]);
+
+            asmblr->cmd[i].cmd_code = CMD_JB;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+        else if (!strncmp(cmd, "je", 2)) {
+            char* argc = &(asmblr->cmd[i].cmd[3]);
+
+            asmblr->cmd[i].cmd_code = CMD_JE;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+        else if (!strncmp(cmd, "jne", 3)) {
+            char* argc = &(asmblr->cmd[i].cmd[4]);
+
+            asmblr->cmd[i].cmd_code = CMD_JNE;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+        else if (!strncmp(cmd, "jmp", 3)) {
+            char* argc = &(asmblr->cmd[i].cmd[4]);
+
+            asmblr->cmd[i].cmd_code = CMD_JMP;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
+            j++;
+            asmblr->buf_output[j] = asmblr->cmd[i].label;
+        }
+
         else {
             fprintf(stderr, "SNTXERR: '%s'\n", cmd);
         }
@@ -188,7 +252,7 @@ Errors CommandsParcing(Assembler* asmblr) {
 }
 
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
-    int arg = atoi(argc);
+    int param = atoi(argc);
 
     if(*(argc + 1) == 'x') {
         asmblr->cmd[i].cmd_code |= reg_mask;
@@ -206,8 +270,11 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
             asmblr->cmd[i].reg = dx;
         }
     }
-    else if(arg){
-        asmblr->cmd[i].argc = arg;
+    else if(*(argc - 3) == 'j' || *(argc - 4) == 'j') {
+        asmblr->cmd[i].label = param;
+    }
+    else if(param){
+        asmblr->cmd[i].argc = param;
         asmblr->cmd[i].cmd_code |= argc_mask;
     }
     else {

@@ -12,7 +12,7 @@
 #include "../stack.hpp"
 
 enum Commands_code {
-    CMD_DEFAULT = 0,
+    CMD_DEFAULT = -1,
     CMD_HLT,
     CMD_DUMP,
     CMD_PUSH,
@@ -25,7 +25,14 @@ enum Commands_code {
     CMD_DIV,
     CMD_SQRT,
     CMD_SIN,
-    CMD_COS
+    CMD_COS,
+    CMD_JA,
+    CMD_JAE,
+    CMD_JB,
+    CMD_JBE,
+    CMD_JE,
+    CMD_JNE,
+    CMD_JMP
 };
 
 enum Registers {
@@ -45,6 +52,7 @@ struct Command {
     char *cmd = NULL;
     int cmd_code = 0;
     int argc = 0;
+    int label = 0;
     Registers reg = REG_DEFAULT;
 };
 
