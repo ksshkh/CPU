@@ -8,7 +8,7 @@ int main(void) {
     printf("%d\n", asmblr.size_file);
     CHECKED_ Parcing(&asmblr);
 
-    for(int i = 0; i < asmblr.n_cmd; i++) {
+    for(size_t i = 0; i < asmblr.n_cmd; i++) {
         printf("%s\n", asmblr.cmd[i].cmd);
     }
 

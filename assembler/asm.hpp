@@ -44,7 +44,7 @@ const int VALUE_DEFAULT = -2;
 struct Command {
     char *cmd = NULL;
     int cmd_code = 0;
-    int64_t argc = 0;
+    int argc = 0;
     Registers reg = REG_DEFAULT;
 };
 
@@ -53,7 +53,7 @@ struct Assembler {
     const char* file_name_print_txt = NULL;
 
     char* buf_input = NULL;
-    int64_t* buf_output = NULL;
+    int* buf_output = NULL;
 
     size_t size_file = 0;
     size_t n_cmd = 0;
@@ -76,7 +76,7 @@ Errors CommandsParcing(Assembler* asmblr);
 
 Errors Parcing(Assembler* asmblr);
 
-void ArgumentsParcing(Assembler* asmblr, int i, Commands_code code, char* argc);
+void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
 
 Errors Output(Assembler* asmblr);
 

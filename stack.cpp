@@ -142,16 +142,16 @@ void StackDump(Stack_t* stk, const char* file, const char* func, int line) {
                 if(stk->capacity != 0) {
                     for(size_t i = 0; i < stk->capacity; i++) {
                         if(i < stk->position) {
-                            fprintf(debug_file, "\t\t*[%lu] = %lf\n", i, stk->data[i]);
+                            fprintf(debug_file, "\t\t*[%lu] = %d\n", i, stk->data[i]);
                         }
                         else {
-                            fprintf(debug_file, "\t\t[%lu] = %.lf(POISON)\n", i, stk->data[i]);
+                            fprintf(debug_file, "\t\t[%lu] = %.d(POISON)\n", i, stk->data[i]);
                         }
                     }
                 }
                 else if(stk->position != 0) {
                     for(size_t i = 0; i < stk->position; i++) {
-                        fprintf(debug_file, "\t\t*[%lu] = %lf\n", i, stk->data[i]);
+                        fprintf(debug_file, "\t\t*[%lu] = %d\n", i, stk->data[i]);
                     }
                 }
 

@@ -9,7 +9,7 @@ int main(void) {
     CHECKED_ STACK_CTOR(&stk, 5);
 
     for(int i = 0; i < 10; i++) {
-        CHECKED_ StackPush(&stk, i * 10.5);
+        CHECKED_ StackPush(&stk, i * 10);
         STACK_DUMP(&stk);
     }
 

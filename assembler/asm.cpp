@@ -46,7 +46,7 @@ Errors ProgramInput(Assembler* asmblr) {
 int count_num_of_words(const Assembler* asmblr) {
     int counter_words = 0;
 
-    for(int i = 0; i < asmblr->size_file; i++) {
+    for(size_t i = 0; i < asmblr->size_file; i++) {
         if(isspace(asmblr->buf_input[i])) {
             if(isspace(asmblr->buf_input[i + 1])) {
                 continue;
@@ -61,7 +61,7 @@ int count_num_of_words(const Assembler* asmblr) {
 int count_num_of_cmds(const Assembler* asmblr) {
     int counter_cmds = 0;
 
-    for(int i = 0; i < asmblr->size_file; i++) {
+    for(size_t i = 0; i < asmblr->size_file; i++) {
         if(asmblr->buf_input[i] == '\n') {
             if(asmblr->buf_input[i + 1] == '\n') {
                 continue;
@@ -81,7 +81,7 @@ Errors Parcing(Assembler* asmblr) {
     asmblr->cmd[0].cmd = asmblr->buf_input;
     int j = 1;
 
-    for(int i = 0; i < asmblr->size_file; i++) {
+    for(size_t i = 0; i < asmblr->size_file; i++) {
 
         if(asmblr->buf_input[i] == '\n') {
 
@@ -102,41 +102,41 @@ Errors Parcing(Assembler* asmblr) {
 Errors CommandsParcing(Assembler* asmblr) {
     MY_ASSERT(asmblr, PTR_ERROR);
 
-    asmblr->buf_output = (int64_t*)calloc(asmblr->n_words, sizeof(int64_t));
+    asmblr->buf_output = (int*)calloc(asmblr->n_words, sizeof(int));
     MY_ASSERT(asmblr->buf_output, PTR_ERROR);
 
-    for(int i = 0, j = 0; i < asmblr->n_cmd; i++, j++) {
+    for(size_t i = 0, j = 0; i < asmblr->n_cmd; i++, j++) {
         char* cmd = asmblr->cmd[i].cmd;
 
         if (!strcmp(cmd, "hlt")) {
             asmblr->cmd[i].cmd_code = CMD_HLT;
-            asmblr->buf_output[j] = (int64_t)CMD_HLT;
+            asmblr->buf_output[j] = CMD_HLT;
         }
         else if (!strcmp(cmd, "dump")) {
             asmblr->cmd[i].cmd_code = CMD_DUMP;
-            asmblr->buf_output[j] = (int64_t)CMD_DUMP;
+            asmblr->buf_output[j] = CMD_DUMP;
         }
         else if (!strcmp(cmd, "out")) {
             asmblr->cmd[i].cmd_code = CMD_OUT;
-            asmblr->buf_output[j] = (int64_t)CMD_OUT;
+            asmblr->buf_output[j] = CMD_OUT;
         }
         else if (!strcmp(cmd, "in")) {
             asmblr->cmd[i].cmd_code = CMD_IN;
-            asmblr->buf_output[j] = (int64_t)CMD_IN;
+            asmblr->buf_output[j] = CMD_IN;
         }
         else if (!strncmp(cmd, "push", 4)) {
             char* argc = &(asmblr->cmd[i].cmd[5]);
             int cmd_check = CMD_PUSH;
 
             asmblr->cmd[i].cmd_code = CMD_PUSH;
-            ArgumentsParcing(asmblr, i, CMD_PUSH, argc);
-            asmblr->buf_output[j] = (int64_t)asmblr->cmd[i].cmd_code;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
             j++;
             if(asmblr->cmd[i].cmd_code == (cmd_check | argc_mask)) {
-                asmblr->buf_output[j] = (int64_t)asmblr->cmd[i].argc;
+                asmblr->buf_output[j] = asmblr->cmd[i].argc;
             }
             else if(asmblr->cmd[i].cmd_code == (cmd_check | reg_mask)) {
-                asmblr->buf_output[j] = (int64_t)asmblr->cmd[i].reg;
+                asmblr->buf_output[j] = asmblr->cmd[i].reg;
             }
         }
         else if (!strncmp(cmd, "pop", 3)) {
@@ -144,40 +144,40 @@ Errors CommandsParcing(Assembler* asmblr) {
             int cmd_check = CMD_POP;
 
             asmblr->cmd[i].cmd_code = CMD_POP;
-            ArgumentsParcing(asmblr, i, CMD_POP, argc);
-            asmblr->buf_output[j] = (int64_t)asmblr->cmd[i].cmd_code;
+            ArgumentsParcing(asmblr, i, argc);
+            asmblr->buf_output[j] = asmblr->cmd[i].cmd_code;
             if(asmblr->cmd[i].cmd_code == (cmd_check | reg_mask)) {
                 j++;
-                asmblr->buf_output[j] = (int64_t)asmblr->cmd[i].reg;
+                asmblr->buf_output[j] = asmblr->cmd[i].reg;
             }
         }
         else if (!strcmp(cmd, "add")) {
             asmblr->cmd[i].cmd_code = CMD_ADD;
-            asmblr->buf_output[j] = (int64_t)CMD_ADD;
+            asmblr->buf_output[j] = CMD_ADD;
         }
         else if (!strcmp(cmd, "sub")) {
             asmblr->cmd[i].cmd_code = CMD_SUB;
-            asmblr->buf_output[j] = (int64_t)CMD_SUB;
+            asmblr->buf_output[j] = CMD_SUB;
         }
         else if (!strcmp(cmd, "mul")) {
             asmblr->cmd[i].cmd_code = CMD_MUL;
-            asmblr->buf_output[j] = (int64_t)CMD_MUL;
+            asmblr->buf_output[j] = CMD_MUL;
         }
         else if (!strcmp(cmd, "div")) {
             asmblr->cmd[i].cmd_code = CMD_DIV;
-            asmblr->buf_output[j] = (int64_t)CMD_DIV;
+            asmblr->buf_output[j] = CMD_DIV;
         }
         else if (!strcmp(cmd, "sqrt")) {
             asmblr->cmd[i].cmd_code = CMD_SQRT;
-            asmblr->buf_output[j] = (int64_t)CMD_SQRT;
+            asmblr->buf_output[j] = CMD_SQRT;
         }
         else if (!strcmp(cmd, "sin")) {
             asmblr->cmd[i].cmd_code = CMD_SIN;
-            asmblr->buf_output[j] = (int64_t)CMD_SIN;
+            asmblr->buf_output[j] = CMD_SIN;
         }
         else if (!strcmp(cmd, "cos")) {
             asmblr->cmd[i].cmd_code = CMD_COS;
-            asmblr->buf_output[j] = (int64_t)CMD_COS;
+            asmblr->buf_output[j] = CMD_COS;
         }
         else {
             fprintf(stderr, "SNTXERR: '%s'\n", cmd);
@@ -187,9 +187,8 @@ Errors CommandsParcing(Assembler* asmblr) {
     return NO_ERROR;
 }
 
-void ArgumentsParcing(Assembler* asmblr, int i, Commands_code code, char* argc) {
-    char** argc_check = 0;
-    double arg = strtod(argc, argc_check);
+void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
+    int arg = atoi(argc);
 
     if(*(argc + 1) == 'x') {
         asmblr->cmd[i].cmd_code |= reg_mask;
@@ -207,14 +206,14 @@ void ArgumentsParcing(Assembler* asmblr, int i, Commands_code code, char* argc) 
             asmblr->cmd[i].reg = dx;
         }
     }
-    else if(&argc != argc_check){
-        if(!strcmp((argc - 4), "pop")) {
-            return;
-        }
+    else if(arg){
         asmblr->cmd[i].argc = arg;
         asmblr->cmd[i].cmd_code |= argc_mask;
     }
     else {
+        if(!strcmp((argc - 4), "pop")) {
+            return;
+        }
         fprintf(stderr, "%d SNTXERR: '%s'\n", __LINE__, asmblr->cmd[i].cmd);
     }
 }
@@ -225,9 +224,9 @@ Errors Output(Assembler* asmblr) {
     FILE* result = fopen(asmblr->file_name_print_txt, "w + b");
     MY_ASSERT(result != NULL, FILE_ERROR);
 
-    printf("%d\n", fwrite(asmblr->buf_output, sizeof(int64_t), asmblr->n_words, result));
+    printf("%ld\n", fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result));
 
-    MY_ASSERT(fclose(result) == NULL, FILE_ERROR);
+    MY_ASSERT(fclose(result) == 0, FILE_ERROR);
 
     return NO_ERROR;
 }

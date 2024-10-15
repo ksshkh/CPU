@@ -29,7 +29,7 @@
 
 #define STACK_DUMP(stk) StackDump((stk), __FILE__, __func__, __LINE__)
 
-typedef double StackElem_t;
+typedef int StackElem_t;
 
 typedef unsigned long long int Hash_t;
 
