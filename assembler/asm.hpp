@@ -12,7 +12,7 @@
 #include "../stack.hpp"
 
 enum Commands_code {
-    CMD_DEFAULT = -2,
+    CMD_DEFAULT = 0,
     CMD_HLT,
     CMD_DUMP,
     CMD_PUSH,
@@ -42,10 +42,9 @@ const int reg_mask = 1 << 5;
 const int VALUE_DEFAULT = -2;
 
 struct Command {
-    size_t size_str = VALUE_DEFAULT;
     char *cmd = NULL;
-    int cmd_code = CMD_DEFAULT;
-    StackElem_t argc = -666.0;
+    int cmd_code = 0;
+    int64_t argc = 0;
     Registers reg = REG_DEFAULT;
 };
 
@@ -54,7 +53,7 @@ struct Assembler {
     const char* file_name_print_txt = NULL;
 
     char* buf_input = NULL;
-    StackElem_t* buf_output = NULL;
+    int64_t* buf_output = NULL;
 
     size_t size_file = 0;
     size_t n_cmd = 0;
@@ -77,6 +76,8 @@ Errors CommandsParcing(Assembler* asmblr);
 
 Errors Parcing(Assembler* asmblr);
 
-void ArgumentsParcing(Assembler* asmblr, int i, Commands_code code);
+void ArgumentsParcing(Assembler* asmblr, int i, Commands_code code, char* argc);
+
+Errors Output(Assembler* asmblr);
 
 #endif

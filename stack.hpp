@@ -19,6 +19,7 @@
 #define STACK_ASSERT(stk) {                                           \
     Errors err = StackVerification(stk);                              \
     if (err != NO_ERROR) {                                            \
+        code_error |= err;                                            \
         STACK_DUMP(stk);                                              \
         return err;                                                   \
     }                                                                 \
@@ -26,7 +27,7 @@
 
 #define STACK_CTOR(stk, initCapacity) StackCtor((stk), (initCapacity), __FILE__, __func__, __LINE__)
 
-#define STACK_DUMP(stk) StackDump((stk), __FILE__, __func__, __LINE__, err)
+#define STACK_DUMP(stk) StackDump((stk), __FILE__, __func__, __LINE__)
 
 typedef double StackElem_t;
 
@@ -72,7 +73,7 @@ Errors StackPush(Stack_t* stk, StackElem_t el);
 
 Errors StackPop(Stack_t* stk, StackElem_t* x);
 
-void StackDump(Stack_t* stk, const char* file, const char* func, int line, Errors err);
+void StackDump(Stack_t* stk, const char* file, const char* func, int line);
 
 Errors StackVerification(const Stack_t* stk);
 

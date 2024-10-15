@@ -9,11 +9,11 @@ CFLAGS = -c -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 
 INCLUDES = ./stack.hpp ./errors.hpp
 
-SOURCES = ./main.cpp ./stack.cpp
+SOURCES = ./main.cpp ./stack.cpp ./errors.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
-EXECUTABLE = stack.exe
+EXECUTABLE = stack
 
 all: $(SOURCES) $(INCLUDES) $(EXECUTABLE)
 
@@ -27,4 +27,4 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	rm -rf *.o
 	rm -rf ./debug/*.txt
-	rm -rf stack.exe
+	rm -rf stack

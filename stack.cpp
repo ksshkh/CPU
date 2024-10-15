@@ -2,23 +2,6 @@
 
 static const char * DEBUG_FILE_NAME = "./debug/dump.txt";
 
-static const char* errors_names[] = {"NO_ERROR",
-                              "PTR_ERROR",
-                              "SIZE_ERROR",
-                              "STACK_UNDERFLOW",
-                              "NO_STACK",
-                              "BAD_CAPACITY",
-                              "NO_DATA",
-                              "BAD_DATA_RIGHT_CANARY",
-                              "BAD_DATA_LEFT_CANARY",
-                              "BAD_STACK_RIGHT_CANARY",
-                              "BAD_STACK_LEFT_CANARY",
-                              "BAD_DATA_HASH",
-                              "BAD_STACK_HASH",
-                              "BAD_HASH",
-                              "BAD_DATA_CANARIES",
-                              "BAD_STACK_CANARIES"};
-
 Errors StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line) {
 
     MY_ASSERT(stk != NULL, PTR_ERROR);
@@ -122,7 +105,7 @@ Errors StackPop(Stack_t* stk, StackElem_t* x) {
     return NO_ERROR;
 }
 
-void StackDump(Stack_t* stk, const char* file, const char* func, int line, Errors err) {
+void StackDump(Stack_t* stk, const char* file, const char* func, int line) {
 
     FILE* debug_file = fopen(stk->debug_file_name, "a");
 
@@ -131,9 +114,9 @@ void StackDump(Stack_t* stk, const char* file, const char* func, int line, Error
         fprintf(debug_file, "------------------------------------\n");
         fprintf(debug_file, "called from %s: %d (%s)\n", file, line, func);
 
-        if(err != NO_ERROR) {
-            fprintf(debug_file, "%s\n", errors_names[err]);
-        }
+        my_strerr(code_error, debug_file);
+
+        fprintf(debug_file, "code error %d\n", code_error);
 
         fprintf(debug_file, "Stack_t [%p]\n", stk);
         fprintf(debug_file, "{\n");

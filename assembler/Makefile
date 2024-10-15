@@ -26,5 +26,6 @@ $(EXECUTABLE): $(OBJECTS)
 .PHONY: clean
 clean:
 	rm -rf *.o
-	rm -rf code.txt
+	rm -rf *.bin
+	rm -rf result.txt
 	rm -rf asm
