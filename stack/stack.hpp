@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "errors.hpp"
+#include "../errors.hpp"
 
 #define DEBUG
 
@@ -17,9 +17,8 @@
 #endif
 
 #define STACK_ASSERT(stk) {                                           \
-    Errors err = StackVerification(stk);                              \
+    int err = StackVerification(stk);                                 \
     if (err != NO_ERROR) {                                            \
-        code_error |= err;                                            \
         STACK_DUMP(stk);                                              \
         return err;                                                   \
     }                                                                 \
@@ -65,19 +64,19 @@ struct Stack_t {
     ON_DEBUG(Canary_t right_canary = 0;)
 };
 
-Errors StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line);
+int StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line);
 
-Errors StackDtor(Stack_t* stk);
+int StackDtor(Stack_t* stk);
 
-Errors StackPush(Stack_t* stk, StackElem_t el);
+int StackPush(Stack_t* stk, StackElem_t el);
 
-Errors StackPop(Stack_t* stk, StackElem_t* x);
+int StackPop(Stack_t* stk, StackElem_t* x);
 
 void StackDump(Stack_t* stk, const char* file, const char* func, int line);
 
-Errors StackVerification(const Stack_t* stk);
+int StackVerification(const Stack_t* stk);
 
-Errors StackReallocation(Stack_t* stk, FunkId id);
+int StackReallocation(Stack_t* stk, FunkId id);
 
 void PoisonMaker(Stack_t* stk);
 

@@ -3,6 +3,8 @@
 
 #define ERR(str) "\x1b[31m" str "\x1b[0m\n"
 
+#include <stdio.h>
+
 enum Errors {
     NO_ERROR = 0,
     PTR_ERROR = 1 << 1,
@@ -27,7 +29,7 @@ enum Errors {
 };
 
 
-#define CHECKED_ if(!err) err =
+#define CHECKED_ if(!code_error) code_error |=
 
 #define MY_ASSERT(expression, err) if(!(expression)) {                                                                      \
     fprintf(stderr, ERR("%s: %d (%s) My assertion failed: \"" #expression "\""), __FILE__, __LINE__, __func__);             \
@@ -37,6 +39,6 @@ enum Errors {
 
 static int code_error = 0;
 
-void my_strerr(int code_error, FILE *stream);
+void my_strerr(int code_error, FILE* stream);
 
 #endif // ERRORS_HPP

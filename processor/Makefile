@@ -7,13 +7,13 @@ CFLAGS = -c -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 	-Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing   \
 	-Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE
 
-INCLUDES = ./asm.hpp ../errors.hpp
+INCLUDES = ../assembler/asm.hpp ./processor.hpp ../errors.hpp ../stack/stack.hpp
 
-SOURCES = ./main.cpp ./asm.cpp ../errors.cpp
+SOURCES = ./main.cpp ./processor.cpp ../assembler/asm.cpp ../errors.cpp ../stack/stack.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
-EXECUTABLE = asm
+EXECUTABLE = proc
 
 all: $(SOURCES) $(INCLUDES) $(EXECUTABLE)
 
@@ -27,5 +27,4 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	rm -rf *.o
 	rm -rf *.bin
-	rm -rf result.txt
-	rm -rf asm
+	rm -rf proc

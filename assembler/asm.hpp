@@ -9,10 +9,10 @@
 #include <math.h>
 
 #include "../errors.hpp"
-#include "../stack.hpp"
+#include "../stack/stack.hpp"
 
 enum Commands_code {
-    CMD_DEFAULT = -1,
+    CMD_DEFAULT = -2,
     CMD_HLT,
     CMD_DUMP,
     CMD_PUSH,

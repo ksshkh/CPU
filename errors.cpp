@@ -1,4 +1,4 @@
-#include "stack.hpp"
+#include "./stack/stack.hpp"
 
 static const char* errors_names[] = {"NO_ERROR",
                                      "PTR_ERROR",
@@ -19,7 +19,7 @@ static const char* errors_names[] = {"NO_ERROR",
                                      "BAD_DATA_CANARIES",
                                      "BAD_STACK_CANARIES"};
 
-void my_strerr(int code_error, FILE *stream) {
+void my_strerr(int code_error, FILE* stream) {
     for (int i = 0; i < N_ERROR; i++)
     {
         if (code_error & (1 << i))

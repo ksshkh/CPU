@@ -20,6 +20,7 @@ int main(void) {
     for(size_t i = 0; i < asmblr.n_cmd; i++) {
         printf("%d %d %d %d\n", asmblr.cmd[i].cmd_code, asmblr.cmd[i].argc, asmblr.cmd[i].reg, asmblr.cmd[i].label);
     }
+    printf("%ld\n", asmblr.n_cmd);
     Output(&asmblr);
 
     return 0;

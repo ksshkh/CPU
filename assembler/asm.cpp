@@ -273,15 +273,12 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
     else if(*(argc - 3) == 'j' || *(argc - 4) == 'j') {
         asmblr->cmd[i].label = param;
     }
-    else if(param){
-        asmblr->cmd[i].argc = param;
-        asmblr->cmd[i].cmd_code |= argc_mask;
+    else if(!strcmp((argc - 4), "pop")) {
+        return;
     }
     else {
-        if(!strcmp((argc - 4), "pop")) {
-            return;
-        }
-        fprintf(stderr, "%d SNTXERR: '%s'\n", __LINE__, asmblr->cmd[i].cmd);
+        asmblr->cmd[i].argc = param;
+        asmblr->cmd[i].cmd_code |= argc_mask;
     }
 }
 
