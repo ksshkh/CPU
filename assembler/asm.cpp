@@ -26,7 +26,7 @@ int AsmCtor(Assembler* asmblr) {
         asmblr->lbls[i].address = -1;
     }
 
-    return NO_ERROR;
+    return code_error;
 }
 
 int ProgramInput(Assembler* asmblr) {
@@ -45,7 +45,7 @@ int ProgramInput(Assembler* asmblr) {
 
     MY_ASSERT(fclose(program) == 0,FILE_ERROR);
 
-    return NO_ERROR;
+    return code_error;
 }
 
 int count_num_of_words(const Assembler* asmblr) {
@@ -106,7 +106,7 @@ int Parcing(Assembler* asmblr) {
         }
     }
 
-    return NO_ERROR;
+    return code_error;
 }
 
 int CommandsParcing(Assembler* asmblr) {
@@ -272,7 +272,7 @@ int CommandsParcing(Assembler* asmblr) {
         }
     }
 
-    return NO_ERROR;
+    return code_error;
 }
 
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
@@ -344,7 +344,7 @@ int Output(Assembler* asmblr) {
 
     MY_ASSERT(fclose(result) == 0, FILE_ERROR);
 
-    return NO_ERROR;
+    return code_error;
 }
 
 void label_insert(char* cmd, Assembler* asmblr, size_t j) {
@@ -408,6 +408,6 @@ int AsmDtor(Assembler* asmblr) {
     free(asmblr->lbls);
     asmblr->lbls = NULL;
 
-    return NO_ERROR;
+    return code_error;
 }
 
