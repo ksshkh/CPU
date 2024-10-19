@@ -278,9 +278,10 @@ Errors CommandsParcing(Assembler* asmblr) {
 }
 
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
+    char* close_sym = NULL;
     if(*argc == '[') {
         asmblr->cmds[i].cmd_code |= mem_mask;
-        char* close_sym = strchr(argc, ']');
+        close_sym = strchr(argc, ']');
         if(close_sym != NULL) {
             *close_sym = '\0';
         }
@@ -329,6 +330,10 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
         asmblr->cmds[i].argc = param;
         asmblr->cmds[i].cmd_code |= argc_mask;
     }
+
+    if(close_sym != NULL) {
+        *close_sym = ']';
+    }
 }
 
 Errors Output(Assembler* asmblr) {
@@ -337,7 +342,7 @@ Errors Output(Assembler* asmblr) {
     FILE* result = fopen(asmblr->file_name_print_txt, "w + b");
     MY_ASSERT(result != NULL, FILE_ERROR);
 
-    printf("%ld\n", fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result));
+    printf("\n%ld\n", fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result));
 
     MY_ASSERT(fclose(result) == 0, FILE_ERROR);
 
@@ -367,9 +372,44 @@ int label_find(char* cmd, Assembler* asmblr) {
 }
 
 void AsmDump(Assembler* asmblr) {
-    fprintf(stderr, "\n");
-    for(size_t i = 0; i < NUM_OF_LABELS; i++) {
-        fprintf(stderr, "%d %s", asmblr->lbls[i].address, asmblr->lbls[i].name);
+    fprintf(stderr, "commands table:\n");
+    for(size_t i = 0; i < asmblr->n_cmd; i++) {
+        fprintf(stderr, "%s\n", asmblr->cmds[i].cmd);
+        fprintf(stderr, "cmd code: %d argument: %d register: %d label: %d\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
+        fprintf(stderr, "\n");
     }
+    fprintf(stderr, "labels table:\n");
+    for(size_t i = 0; i < NUM_OF_LABELS; i++) {
+        fprintf(stderr, "address: %d name: %s", asmblr->lbls[i].address, asmblr->lbls[i].name);
+        fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "output buffer:\n");
+    for(size_t i = 0; i < asmblr->n_words; i++) {
+        fprintf(stderr, "%d ", asmblr->buf_output[i]);
+    }
+    fprintf(stderr, "\n");
+}
+
+Errors AsmDtor(Assembler* asmblr) {
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+
+    asmblr->file_name_input = NULL;
+    asmblr->file_name_print_txt = NULL;
+
+    free(asmblr->buf_input);
+    asmblr->buf_input = NULL;
+    free(asmblr->buf_output);
+    asmblr->buf_output = NULL;
+
+    asmblr->size_file = 0;
+    asmblr->n_cmd = 0;
+    asmblr->n_words = 0;
+
+    free(asmblr->cmds);
+    asmblr->cmds = NULL;
+    free(asmblr->lbls);
+    asmblr->lbls = NULL;
+
+    return NO_ERROR;
 }
 

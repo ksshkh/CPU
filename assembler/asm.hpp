@@ -102,4 +102,6 @@ int label_find(char* cmd, Assembler* asmblr);
 
 void AsmDump(Assembler* asmblr);
 
+Errors AsmDtor(Assembler* asmblr);
+
 #endif
