@@ -78,23 +78,23 @@ struct Assembler {
     Label* lbls = NULL;
 };
 
-Errors ProgramInput(Assembler* asmblr);
+int ProgramInput(Assembler* asmblr);
 
 long int count_size_file(FILE* program);
 
-Errors AsmCtor(Assembler* asmblr);
+int AsmCtor(Assembler* asmblr);
 
 int count_num_of_words(const Assembler* asmblr);
 
 int count_num_of_cmds(const Assembler* asmblr);
 
-Errors CommandsParcing(Assembler* asmblr);
+int CommandsParcing(Assembler* asmblr);
 
-Errors Parcing(Assembler* asmblr);
+int Parcing(Assembler* asmblr);
 
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
 
-Errors Output(Assembler* asmblr);
+int Output(Assembler* asmblr);
 
 void label_insert(char* cmd, Assembler* asmblr, size_t j);
 
@@ -102,6 +102,6 @@ int label_find(char* cmd, Assembler* asmblr);
 
 void AsmDump(Assembler* asmblr);
 
-Errors AsmDtor(Assembler* asmblr);
+int AsmDtor(Assembler* asmblr);
 
 #endif

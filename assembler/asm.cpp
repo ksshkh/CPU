@@ -7,7 +7,7 @@ long int count_size_file(FILE* program) {
     return buff.st_size;
 }
 
-Errors AsmCtor(Assembler* asmblr) {
+int AsmCtor(Assembler* asmblr) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
@@ -29,7 +29,7 @@ Errors AsmCtor(Assembler* asmblr) {
     return NO_ERROR;
 }
 
-Errors ProgramInput(Assembler* asmblr) {
+int ProgramInput(Assembler* asmblr) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
@@ -81,7 +81,7 @@ int count_num_of_cmds(const Assembler* asmblr) {
     return counter_cmds + 1;
 }
 
-Errors Parcing(Assembler* asmblr) {
+int Parcing(Assembler* asmblr) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
@@ -109,7 +109,7 @@ Errors Parcing(Assembler* asmblr) {
     return NO_ERROR;
 }
 
-Errors CommandsParcing(Assembler* asmblr) {
+int CommandsParcing(Assembler* asmblr) {
     MY_ASSERT(asmblr, PTR_ERROR);
 
     asmblr->buf_output = (int*)calloc(asmblr->n_words, sizeof(int));
@@ -136,7 +136,6 @@ Errors CommandsParcing(Assembler* asmblr) {
         }
         else if (!strncmp(cmd, "push", 4)) {
             char* argc = &(asmblr->cmds[i].cmd[5]);
-            int cmd_check = CMD_PUSH;
             int flag = 0;
 
             asmblr->cmds[i].cmd_code = CMD_PUSH;
@@ -159,7 +158,6 @@ Errors CommandsParcing(Assembler* asmblr) {
         }
         else if (!strncmp(cmd, "pop", 3)) {
             char* argc = &(asmblr->cmds[i].cmd[4]);
-            int cmd_check = CMD_POP;
 
             asmblr->cmds[i].cmd_code = CMD_POP;
             ArgumentsParcing(asmblr, i, argc);
@@ -336,13 +334,13 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
     }
 }
 
-Errors Output(Assembler* asmblr) {
+int Output(Assembler* asmblr) {
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
     FILE* result = fopen(asmblr->file_name_print_txt, "w + b");
     MY_ASSERT(result != NULL, FILE_ERROR);
 
-    printf("\n%ld\n", fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result));
+    // printf("\n%ld\n", fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result));
 
     MY_ASSERT(fclose(result) == 0, FILE_ERROR);
 
@@ -390,7 +388,7 @@ void AsmDump(Assembler* asmblr) {
     fprintf(stderr, "\n");
 }
 
-Errors AsmDtor(Assembler* asmblr) {
+int AsmDtor(Assembler* asmblr) {
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
     asmblr->file_name_input = NULL;
