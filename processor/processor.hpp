@@ -24,11 +24,11 @@ struct SPU {
     int registers[4] = {};
 };
 
-Errors SPUCtor(SPU* spu);
+int SPUCtor(SPU* spu);
 
-Errors CodeReader(SPU* spu);
+int CodeReader(SPU* spu);
 
-Errors SPURun(SPU* spu);
+int SPURun(SPU* spu);
 
 void SPUDump(SPU* spu);
 

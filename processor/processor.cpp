@@ -1,7 +1,6 @@
 #include "processor.hpp"
 
-Errors SPUCtor(SPU* spu) {
-    Errors err = NO_ERROR;
+int SPUCtor(SPU* spu) {
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
     CHECKED_ STACK_CTOR(&spu->stk, InitCapacity);
@@ -9,10 +8,10 @@ Errors SPUCtor(SPU* spu) {
     spu->file_name_input = "../assembler/result.txt";
 
     CHECKED_ CodeReader(spu);
-    return NO_ERROR;
+    return code_error;
 }
 
-Errors CodeReader(SPU* spu) {
+int CodeReader(SPU* spu) {
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
     FILE* program = fopen(spu->file_name_input, "rb");
@@ -27,11 +26,10 @@ Errors CodeReader(SPU* spu) {
 
     MY_ASSERT(fclose(program) == 0,FILE_ERROR);
 
-    return NO_ERROR;
+    return code_error;
 }
 
-Errors SPURun(SPU* spu) {
-    Errors err = NO_ERROR;
+int SPURun(SPU* spu) {
     spu->ip = 0;
     while(spu->ip < spu->code_size) {
         SPUDump(spu);
@@ -215,7 +213,7 @@ Errors SPURun(SPU* spu) {
 
         (spu->ip)++;
     }
-    return NO_ERROR;
+    return code_error;
 }
 
 void SPUDump(SPU* spu) {
