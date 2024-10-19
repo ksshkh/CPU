@@ -45,6 +45,7 @@ enum Registers {
 
 const int argc_mask = 1 << 4;
 const int reg_mask = 1 << 5;
+const int mem_mask = 1 << 6;
 
 const int VALUE_DEFAULT = -2;
 const int NUM_OF_LABELS = 10;
