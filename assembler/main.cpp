@@ -9,7 +9,7 @@ int main(void) {
     CHECKED_ Parcing(&asmblr);
 
     for(size_t i = 0; i < asmblr.n_cmd; i++) {
-        printf("%s\n", asmblr.cmd[i].cmd);
+        printf("%s\n", asmblr.cmds[i].cmd);
     }
 
     CHECKED_ CommandsParcing(&asmblr);
@@ -18,9 +18,10 @@ int main(void) {
     }
     printf("\n");
     for(size_t i = 0; i < asmblr.n_cmd; i++) {
-        printf("%d %d %d %d\n", asmblr.cmd[i].cmd_code, asmblr.cmd[i].argc, asmblr.cmd[i].reg, asmblr.cmd[i].label);
+        printf("%d %d %d %d\n", asmblr.cmds[i].cmd_code, asmblr.cmds[i].argc, asmblr.cmds[i].reg, asmblr.cmds[i].label);
     }
     printf("%ld\n", asmblr.n_cmd);
+    AsmDump(&asmblr);
     Output(&asmblr);
 
     return 0;

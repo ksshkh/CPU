@@ -47,6 +47,12 @@ const int argc_mask = 1 << 4;
 const int reg_mask = 1 << 5;
 
 const int VALUE_DEFAULT = -2;
+const int NUM_OF_LABELS = 10;
+
+struct Label {
+    int address = 0;
+    char* name = NULL;
+};
 
 struct Command {
     char *cmd = NULL;
@@ -67,7 +73,8 @@ struct Assembler {
     size_t n_cmd = 0;
     size_t n_words = 0;
 
-    Command* cmd = NULL;
+    Command* cmds = NULL;
+    Label* lbls = NULL;
 };
 
 Errors ProgramInput(Assembler* asmblr);
@@ -87,5 +94,11 @@ Errors Parcing(Assembler* asmblr);
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
 
 Errors Output(Assembler* asmblr);
+
+void label_insert(char* cmd, Assembler* asmblr, size_t j);
+
+int label_find(char* cmd, Assembler* asmblr);
+
+void AsmDump(Assembler* asmblr);
 
 #endif
