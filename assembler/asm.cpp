@@ -341,6 +341,7 @@ int Output(Assembler* asmblr) {
     MY_ASSERT(result != NULL, FILE_ERROR);
 
     // printf("\n%ld\n", fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result));
+    fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result);
 
     MY_ASSERT(fclose(result) == 0, FILE_ERROR);
 

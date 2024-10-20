@@ -28,3 +28,4 @@ clean:
 	rm -rf *.o
 	rm -rf *.bin
 	rm -rf proc
+	rm -rf ../debug/dump.txt

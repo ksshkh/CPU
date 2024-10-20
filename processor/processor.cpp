@@ -8,6 +8,12 @@ int SPUCtor(SPU* spu) {
     spu->file_name_input = "../assembler/result.txt";
 
     CHECKED_ CodeReader(spu);
+
+    spu->registers = (int*)calloc(REG_SIZE, sizeof(int));
+    spu->ram = (int*)calloc(RAM_SIZE, sizeof(int));
+    MY_ASSERT(spu->registers != NULL, PTR_ERROR);
+    MY_ASSERT(spu->ram != NULL, PTR_ERROR);
+
     return code_error;
 }
 
@@ -34,7 +40,7 @@ int SPURun(SPU* spu) {
     while(spu->ip < spu->code_size) {
         SPUDump(spu);
         int current_cmd = spu->code[spu->ip];
-        // printf("(%d %d %d)\n", current_cmd, current_cmd ^ argc_mask, current_cmd ^ reg_mask);
+        // printf("(%d)\n", (current_cmd & 15));
 
         if(current_cmd == CMD_HLT) {
             break;
@@ -44,28 +50,83 @@ int SPURun(SPU* spu) {
             STACK_DUMP(&(spu->stk));
         }
 
-        else if(((current_cmd ^ argc_mask) == CMD_PUSH) || ((current_cmd ^ reg_mask) == CMD_PUSH)) {
+        else if((current_cmd & check_mask) == CMD_PUSH) {
             (spu->ip)++;
-            if((current_cmd ^ argc_mask) == CMD_PUSH) {
-                CHECKED_ StackPush(&(spu->stk), spu->code[spu->ip]);
-                // STACK_DUMP(&(spu->stk));
+
+            if((current_cmd & mem_mask) == mem_mask) {
+
+                if(((current_cmd & reg_mask) == reg_mask) && ((current_cmd & argc_mask) == argc_mask)) {
+                    int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
+                    (spu->ip)++;
+                    int temp_arg_argc = spu->code[spu->ip];
+                    CHECKED_ StackPush(&(spu->stk), spu->ram[temp_arg_reg + temp_arg_argc]);
+                }
+
+                else if((current_cmd & reg_mask) == reg_mask) {
+                    int temp_arg = spu->registers[spu->code[spu->ip] - 1];
+                    CHECKED_ StackPush(&(spu->stk), spu->ram[temp_arg]);
+                }
+
+                else if((current_cmd & argc_mask) == argc_mask) {
+                    CHECKED_ StackPush(&(spu->stk), spu->ram[spu->code[spu->ip]]);
+                }
+
             }
-            else if((current_cmd ^ reg_mask) == CMD_PUSH) {
-                CHECKED_ StackPush(&(spu->stk), spu->registers[spu->code[spu->ip] - 1]);
+
+            else {
+
+                if(((current_cmd & reg_mask) == reg_mask) && ((current_cmd & argc_mask) == argc_mask)) {
+                    int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
+                    (spu->ip)++;
+                    int temp_arg_argc = spu->code[spu->ip];
+                    CHECKED_ StackPush(&(spu->stk), temp_arg_reg + temp_arg_argc);
+                }
+
+                else if((current_cmd & reg_mask) == reg_mask) {
+                    CHECKED_ StackPush(&(spu->stk), spu->registers[spu->code[spu->ip] - 1]);
+                }
+
+                else if((current_cmd & argc_mask) == argc_mask) {
+                    CHECKED_ StackPush(&(spu->stk), spu->code[spu->ip]);
+                }
+
             }
         }
 
-        else if(current_cmd == CMD_POP || ((current_cmd ^ reg_mask) == CMD_POP)) {
+        else if((current_cmd & check_mask) == CMD_POP) {
 
             if(current_cmd == CMD_POP) {
                 int pop_elem = 0;
                 CHECKED_ StackPop(&(spu->stk), &pop_elem);
                 // fprintf(stderr, "popped elem: %d\n", pop_elem);
             }
-            else if((current_cmd ^ reg_mask) == CMD_POP) {
+
+            else if((current_cmd & mem_mask) == mem_mask) {
+                (spu->ip)++;
+
+                if(((current_cmd & reg_mask) == reg_mask) && ((current_cmd & argc_mask) == argc_mask)) {
+                    int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
+                    (spu->ip)++;
+                    int temp_arg_argc = spu->code[spu->ip];
+                    CHECKED_ StackPop(&(spu->stk), &(spu->ram[temp_arg_reg + temp_arg_argc]));
+                }
+
+                else if((current_cmd & reg_mask) == reg_mask) {
+                    int temp_arg = spu->registers[spu->code[spu->ip] - 1];
+                    CHECKED_ StackPop(&(spu->stk), &(spu->ram[temp_arg]));
+                }
+
+                else if((current_cmd & argc_mask) == argc_mask) {
+                    CHECKED_ StackPop(&(spu->stk), &(spu->ram[spu->code[spu->ip]]));
+                }
+
+            }
+
+            else if((current_cmd & reg_mask) == reg_mask) {
                 (spu->ip)++;
                 CHECKED_ StackPop(&(spu->stk), &(spu->registers[spu->code[spu->ip] - 1]));
             }
+
         }
 
         else if(current_cmd == CMD_OUT) {
@@ -237,14 +298,37 @@ void SPUDump(SPU* spu) {
     }
     fprintf(debug, "^\n");
     for(size_t i = 0; i < spu->ip; i++) {
-        fprintf(debug, "   ", spu->code[i]);
+        fprintf(debug, "   ");
     }
-    fprintf(debug, "ip = %d\n", spu->ip);
+    fprintf(debug, "ip = %ld\n", spu->ip);
     fprintf(debug, "registers: ");
-    for(size_t i = 0; i < 4; i++) {
+    for(size_t i = 0; i < REG_SIZE; i++) {
         fprintf(debug, "%d ", spu->registers[i]);
+    }
+    fprintf(debug, "\n");
+    fprintf(debug, "RAM: ");
+    for(size_t i = 0; i < RAM_SIZE; i++) {
+        fprintf(debug, "%d ", spu->ram[i]);
     }
     fprintf(debug, "\n");
     fclose(debug);
     STACK_DUMP(&(spu->stk));
+}
+
+int SpuDtor(SPU* spu) {
+    free(spu->code);
+    free(spu->ram);
+    free(spu->registers);
+
+    spu->code = NULL;
+    spu->ram = NULL;
+    spu->registers = NULL;
+
+    spu->file_name_input = NULL;
+
+    spu->code_size = 0;
+    spu->ip = 0;
+
+    CHECKED_ StackDtor(&(spu->stk));
+    return code_error;
 }

@@ -10,6 +10,10 @@
 #include "../assembler/asm.hpp"
 
 const size_t InitCapacity = 5;
+const size_t REG_SIZE = 4;
+const size_t RAM_SIZE = 100;
+
+const int check_mask = 15;
 
 struct SPU {
     const char* file_name_input = NULL;
@@ -21,7 +25,8 @@ struct SPU {
 
     Stack_t stk = {};
 
-    int registers[4] = {};
+    int* registers = NULL;
+    int* ram = NULL;
 };
 
 int SPUCtor(SPU* spu);
@@ -32,4 +37,6 @@ int SPURun(SPU* spu);
 
 void SPUDump(SPU* spu);
 
-#endif
+int SpuDtor(SPU* spu);
+
+#endif // PROCESSOR_HPP

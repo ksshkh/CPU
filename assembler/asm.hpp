@@ -104,4 +104,4 @@ void AsmDump(Assembler* asmblr);
 
 int AsmDtor(Assembler* asmblr);
 
-#endif
+#endif // ASM_HPP
