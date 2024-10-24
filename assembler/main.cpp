@@ -4,7 +4,7 @@ int main(void) {
     Assembler asmblr = {0};
     AsmCtor(&asmblr);
     // fprintf(stderr, "words: %d cmds: %d\n", asmblr.n_words, asmblr.n_cmd);
-    CHECKED_ Parcing(&asmblr);
+    CHECKED_ BufferParcing(&asmblr);
     CHECKED_ CommandsParcing(&asmblr);
     AsmDump(&asmblr);
     CHECKED_ Output(&asmblr);

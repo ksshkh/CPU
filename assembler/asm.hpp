@@ -43,19 +43,21 @@ int ProgramInput(Assembler* asmblr);
 
 int AsmCtor(Assembler* asmblr);
 
-void elements_counter(Assembler* asmblr);
+void ElemetsCounter(Assembler* asmblr);
 
 int CommandsParcing(Assembler* asmblr);
 
-int Parcing(Assembler* asmblr);
+int BufferParcing(Assembler* asmblr);
 
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
 
+void ArgsHandling(Assembler* asmblr, size_t i, char* argc);
+
 int Output(Assembler* asmblr);
 
-void label_insert(char* cmd, Assembler* asmblr, int* j);
+void LabelInsert(char* cmd, Assembler* asmblr, int* j);
 
-int label_find(char* cmd, Assembler* asmblr);
+int LabelFind(char* cmd, Assembler* asmblr);
 
 void AsmDump(Assembler* asmblr);
 
