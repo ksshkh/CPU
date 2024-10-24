@@ -1,15 +1,5 @@
 #include "asm.hpp"
 
-long int count_size_file(FILE* program) {
-
-    MY_ASSERT(program != NULL, FILE_ERROR);
-
-    struct stat file_info = {};
-    fstat(fileno(program), &file_info);
-
-    return file_info.st_size;
-}
-
 int AsmCtor(Assembler* asmblr) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
@@ -133,29 +123,28 @@ int CommandsParcing(Assembler* asmblr) {
     asmblr->buf_output = (int*)calloc(asmblr->n_words, sizeof(int));
     MY_ASSERT(asmblr->buf_output != NULL, PTR_ERROR);
 
-// odinakovo strcmp
     for(int twice_comp = 0; twice_comp < 2; twice_comp++) {
 
         for(int i = 0, j = 0; i < asmblr->n_cmd; i++, j++) {
 
             char* cmd = asmblr->cmds[i].cmd;
 
-            if(!strcmp(cmd, "hlt")) {
+            if(!strncmp(cmd, "hlt", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_HLT;
                 asmblr->buf_output[j] = CMD_HLT;
             }
 
-            else if(!strcmp(cmd, "dump")) {
+            else if(!strncmp(cmd, "dump", 4)) {
                 asmblr->cmds[i].cmd_code = CMD_DUMP;
                 asmblr->buf_output[j] = CMD_DUMP;
             }
 
-            else if(!strcmp(cmd, "out")) {
+            else if(!strncmp(cmd, "out", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_OUT;
                 asmblr->buf_output[j] = CMD_OUT;
             }
 
-            else if(!strcmp(cmd, "in")) {
+            else if(!strncmp(cmd, "in", 2)) {
                 asmblr->cmds[i].cmd_code = CMD_IN;
                 asmblr->buf_output[j] = CMD_IN;
             }
@@ -168,11 +157,11 @@ int CommandsParcing(Assembler* asmblr) {
                 ArgumentsParcing(asmblr, i, argc);
                 asmblr->buf_output[j] = asmblr->cmds[i].cmd_code;
                 j++;
-                if((asmblr->cmds[i].cmd_code & argc_mask) == argc_mask) {
+                if((asmblr->cmds[i].cmd_code & ARGC_MASK) == ARGC_MASK) {
                     asmblr->buf_output[j] = asmblr->cmds[i].argc;
                     flag++;
                 }
-                if((asmblr->cmds[i].cmd_code & reg_mask) == reg_mask) {
+                if((asmblr->cmds[i].cmd_code & REG_MASK) == REG_MASK) {
                     asmblr->buf_output[j] = asmblr->cmds[i].reg;
                     flag++;
                 }
@@ -189,47 +178,47 @@ int CommandsParcing(Assembler* asmblr) {
                 asmblr->cmds[i].cmd_code = CMD_POP;
                 ArgumentsParcing(asmblr, i, argc);
                 asmblr->buf_output[j] = asmblr->cmds[i].cmd_code;
-                if((asmblr->cmds[i].cmd_code & reg_mask) == reg_mask) {
+                if((asmblr->cmds[i].cmd_code & REG_MASK) == REG_MASK) {
                     j++;
                     asmblr->buf_output[j] = asmblr->cmds[i].reg;
                 }
-                if((asmblr->cmds[i].cmd_code & argc_mask) == argc_mask) {
+                if((asmblr->cmds[i].cmd_code & ARGC_MASK) == ARGC_MASK) {
                     j++;
                     asmblr->buf_output[j] = asmblr->cmds[i].argc;
                 }
             }
 
-            else if(!strcmp(cmd, "add")) {
+            else if(!strncmp(cmd, "add", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_ADD;
                 asmblr->buf_output[j] = CMD_ADD;
             }
 
-            else if(!strcmp(cmd, "sub")) {
+            else if(!strncmp(cmd, "sub", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_SUB;
                 asmblr->buf_output[j] = CMD_SUB;
             }
 
-            else if(!strcmp(cmd, "mul")) {
+            else if(!strncmp(cmd, "mul", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_MUL;
                 asmblr->buf_output[j] = CMD_MUL;
             }
 
-            else if(!strcmp(cmd, "div")) {
+            else if(!strncmp(cmd, "div", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_DIV;
                 asmblr->buf_output[j] = CMD_DIV;
             }
 
-            else if(!strcmp(cmd, "sqrt")) {
+            else if(!strncmp(cmd, "sqrt", 4)) {
                 asmblr->cmds[i].cmd_code = CMD_SQRT;
                 asmblr->buf_output[j] = CMD_SQRT;
             }
 
-            else if(!strcmp(cmd, "sin")) {
+            else if(!strncmp(cmd, "sin", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_SIN;
                 asmblr->buf_output[j] = CMD_SIN;
             }
 
-            else if(!strcmp(cmd, "cos")) {
+            else if(!strncmp(cmd, "cos", 3)) {
                 asmblr->cmds[i].cmd_code = CMD_COS;
                 asmblr->buf_output[j] = CMD_COS;
             }
@@ -322,13 +311,12 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
     char* close_sym = NULL;
 
     if(*argc == '[') {
-        asmblr->cmds[i].cmd_code |= mem_mask;
+        asmblr->cmds[i].cmd_code |= MEM_MASK;
         close_sym = strchr(argc, ']');
 
         if(close_sym != NULL) {
             *close_sym = '\0';
         }
-
         else {
             fprintf(stderr, "SNTXERR: '%s'\n", argc);
         }
@@ -339,7 +327,7 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
     int param = atoi(argc);
 
     if(*(argc + 1) == 'x') {
-        asmblr->cmds[i].cmd_code |= reg_mask;
+        asmblr->cmds[i].cmd_code |= REG_MASK;
 
         if(*argc == 'a') {
             asmblr->cmds[i].reg = ax;
@@ -358,7 +346,7 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
             argc += 5;
             param = atoi(argc);
             asmblr->cmds[i].argc = param;
-            asmblr->cmds[i].cmd_code |= argc_mask;
+            asmblr->cmds[i].cmd_code |= ARGC_MASK;
         }
     }
 
@@ -385,7 +373,7 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
 
     else {
         asmblr->cmds[i].argc = param;
-        asmblr->cmds[i].cmd_code |= argc_mask;
+        asmblr->cmds[i].cmd_code |= ARGC_MASK;
     }
 
     if(close_sym != NULL) {

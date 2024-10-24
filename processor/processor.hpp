@@ -7,7 +7,7 @@
 
 #include "../stack/stack.hpp"
 #include "../errors.hpp"
-#include "../assembler/asm.hpp"
+#include "../commands.hpp"
 
 const size_t InitCapacity = 5;
 const size_t REG_SIZE = 4;

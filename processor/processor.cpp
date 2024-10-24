@@ -57,21 +57,21 @@ int SPURun(SPU* spu) {
         else if((current_cmd & check_mask) == CMD_PUSH) {
             (spu->ip)++;
 
-            if((current_cmd & mem_mask) == mem_mask) {
+            if((current_cmd & MEM_MASK) == MEM_MASK) {
 
-                if(((current_cmd & reg_mask) == reg_mask) && ((current_cmd & argc_mask) == argc_mask)) {
+                if(((current_cmd & REG_MASK) == REG_MASK) && ((current_cmd & ARGC_MASK) == ARGC_MASK)) {
                     int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
                     (spu->ip)++;
                     int temp_arg_argc = spu->code[spu->ip];
                     CHECKED_ StackPush(&(spu->stk), spu->ram[temp_arg_reg + temp_arg_argc]);
                 }
 
-                else if((current_cmd & reg_mask) == reg_mask) {
+                else if((current_cmd & REG_MASK) == REG_MASK) {
                     int temp_arg = spu->registers[spu->code[spu->ip] - 1];
                     CHECKED_ StackPush(&(spu->stk), spu->ram[temp_arg]);
                 }
 
-                else if((current_cmd & argc_mask) == argc_mask) {
+                else if((current_cmd & ARGC_MASK) == ARGC_MASK) {
                     CHECKED_ StackPush(&(spu->stk), spu->ram[spu->code[spu->ip]]);
                 }
 
@@ -79,18 +79,18 @@ int SPURun(SPU* spu) {
 
             else {
 
-                if(((current_cmd & reg_mask) == reg_mask) && ((current_cmd & argc_mask) == argc_mask)) {
+                if(((current_cmd & REG_MASK) == REG_MASK) && ((current_cmd & ARGC_MASK) == ARGC_MASK)) {
                     int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
                     (spu->ip)++;
                     int temp_arg_argc = spu->code[spu->ip];
                     CHECKED_ StackPush(&(spu->stk), temp_arg_reg + temp_arg_argc);
                 }
 
-                else if((current_cmd & reg_mask) == reg_mask) {
+                else if((current_cmd & REG_MASK) == REG_MASK) {
                     CHECKED_ StackPush(&(spu->stk), spu->registers[spu->code[spu->ip] - 1]);
                 }
 
-                else if((current_cmd & argc_mask) == argc_mask) {
+                else if((current_cmd & ARGC_MASK) == ARGC_MASK) {
                     CHECKED_ StackPush(&(spu->stk), spu->code[spu->ip]);
                 }
 
@@ -105,28 +105,28 @@ int SPURun(SPU* spu) {
 
             }
 
-            else if((current_cmd & mem_mask) == mem_mask) {
+            else if((current_cmd & MEM_MASK) == MEM_MASK) {
                 (spu->ip)++;
 
-                if(((current_cmd & reg_mask) == reg_mask) && ((current_cmd & argc_mask) == argc_mask)) {
+                if(((current_cmd & REG_MASK) == REG_MASK) && ((current_cmd & ARGC_MASK) == ARGC_MASK)) {
                     int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
                     (spu->ip)++;
                     int temp_arg_argc = spu->code[spu->ip];
                     CHECKED_ StackPop(&(spu->stk), &(spu->ram[temp_arg_reg + temp_arg_argc]));
                 }
 
-                else if((current_cmd & reg_mask) == reg_mask) {
+                else if((current_cmd & REG_MASK) == REG_MASK) {
                     int temp_arg = spu->registers[spu->code[spu->ip] - 1];
                     CHECKED_ StackPop(&(spu->stk), &(spu->ram[temp_arg]));
                 }
 
-                else if((current_cmd & argc_mask) == argc_mask) {
+                else if((current_cmd & ARGC_MASK) == ARGC_MASK) {
                     CHECKED_ StackPop(&(spu->stk), &(spu->ram[spu->code[spu->ip]]));
                 }
 
             }
 
-            else if((current_cmd & reg_mask) == reg_mask) {
+            else if((current_cmd & REG_MASK) == REG_MASK) {
                 (spu->ip)++;
                 CHECKED_ StackPop(&(spu->stk), &(spu->registers[spu->code[spu->ip] - 1]));
             }

@@ -4,51 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <ctype.h>
 #include <math.h>
 
 #include "../errors.hpp"
 #include "../stack/stack.hpp"
-
-enum Commands_code {
-    CMD_DEFAULT = -2,
-    CMD_HLT,
-    CMD_DUMP,
-    CMD_PUSH,
-    CMD_POP,
-    CMD_OUT,
-    CMD_IN,
-    CMD_ADD,
-    CMD_SUB,
-    CMD_MUL,
-    CMD_DIV,
-    CMD_SQRT,
-    CMD_SIN,
-    CMD_COS,
-    CMD_JA,
-    CMD_JAE,
-    CMD_JB,
-    CMD_JBE,
-    CMD_JE,
-    CMD_JNE,
-    CMD_JMP
-};
-
-enum Registers {
-    REG_DEFAULT,
-    ax,
-    bx,
-    cx,
-    dx
-};
-
-const int argc_mask = 1 << 4;
-const int reg_mask = 1 << 5;
-const int mem_mask = 1 << 6;
-
-const int VALUE_DEFAULT = -2;
-const int NUM_OF_LABELS = 20;
+#include "../commands.hpp"
 
 struct Label {
     int address = 0;
@@ -79,8 +40,6 @@ struct Assembler {
 };
 
 int ProgramInput(Assembler* asmblr);
-
-long int count_size_file(FILE* program);
 
 int AsmCtor(Assembler* asmblr);
 
