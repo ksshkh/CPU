@@ -5,7 +5,7 @@ int SPUCtor(SPU* spu) {
 
     CHECKED_ STACK_CTOR(&spu->stk, InitCapacity);
 
-    spu->file_name_input = "../assembler/result.txt";
+    spu->file_name_input = "../assembler/result.bin";
 
     CHECKED_ CodeReader(spu);
 
@@ -180,6 +180,27 @@ int SPURun(SPU* spu) {
             CHECKED_ StackPop(&(spu->stk), &x2);
             CHECKED_ StackPop(&(spu->stk), &x1);
             CHECKED_ StackPush(&(spu->stk), x1 / x2);
+        }
+
+        else if(current_cmd == CMD_SQRT) {
+            StackElem_t x = 0;
+
+            CHECKED_ StackPop(&(spu->stk), &x);
+            CHECKED_ StackPush(&(spu->stk), (StackElem_t)sqrt(x));
+        }
+
+        else if(current_cmd == CMD_COS) {
+            StackElem_t x = 0;
+
+            CHECKED_ StackPop(&(spu->stk), &x);
+            CHECKED_ StackPush(&(spu->stk), (StackElem_t)cos(x));
+        }
+
+        else if(current_cmd == CMD_SIN) {
+            StackElem_t x = 0;
+
+            CHECKED_ StackPop(&(spu->stk), &x);
+            CHECKED_ StackPush(&(spu->stk), (StackElem_t)sin(x));
         }
 
         else if(current_cmd == CMD_JA) {
