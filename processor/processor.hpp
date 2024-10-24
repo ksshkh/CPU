@@ -13,7 +13,7 @@ const size_t InitCapacity = 5;
 const size_t REG_SIZE = 4;
 const size_t RAM_SIZE = 100;
 
-const int check_mask = 15;
+const int check_mask = 0x1F;
 
 struct SPU {
     const char* file_name_input = NULL;

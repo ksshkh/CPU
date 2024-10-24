@@ -37,7 +37,7 @@ enum Commands_code {
 
 enum Registers {
     REG_DEFAULT,
-    ax = 1,
+    ax,
     bx,
     cx,
     dx
@@ -48,7 +48,7 @@ const int reg_mask = 1 << 5;
 const int mem_mask = 1 << 6;
 
 const int VALUE_DEFAULT = -2;
-const int NUM_OF_LABELS = 10;
+const int NUM_OF_LABELS = 20;
 
 struct Label {
     int address = 0;
@@ -96,7 +96,7 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
 
 int Output(Assembler* asmblr);
 
-void label_insert(char* cmd, Assembler* asmblr, size_t j);
+void label_insert(char* cmd, Assembler* asmblr, int* j);
 
 int label_find(char* cmd, Assembler* asmblr);
 

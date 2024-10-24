@@ -10,8 +10,9 @@ int SPUCtor(SPU* spu) {
     CHECKED_ CodeReader(spu);
 
     spu->registers = (int*)calloc(REG_SIZE, sizeof(int));
-    spu->ram = (int*)calloc(RAM_SIZE, sizeof(int));
     MY_ASSERT(spu->registers != NULL, PTR_ERROR);
+
+    spu->ram = (int*)calloc(RAM_SIZE, sizeof(int));
     MY_ASSERT(spu->ram != NULL, PTR_ERROR);
 
     return code_error;
@@ -23,10 +24,10 @@ int CodeReader(SPU* spu) {
     FILE* program = fopen(spu->file_name_input, "rb");
     MY_ASSERT(program != NULL, FILE_ERROR);
 
-    spu->code_size = count_size_file(program);
+    spu->code_size = count_size_file(program) / sizeof(int);
 
     spu->code = (int*)calloc(spu->code_size, sizeof(int));
-    MY_ASSERT(spu->code, PTR_ERROR);
+    MY_ASSERT(spu->code != NULL, PTR_ERROR);
 
     fread(spu->code, sizeof(int), spu->code_size, program);
 
@@ -35,12 +36,15 @@ int CodeReader(SPU* spu) {
     return code_error;
 }
 
+// optimize
+
 int SPURun(SPU* spu) {
     spu->ip = 0;
+
     while(spu->ip < spu->code_size) {
         SPUDump(spu);
+
         int current_cmd = spu->code[spu->ip];
-        // printf("(%d)\n", (current_cmd & 15));
 
         if(current_cmd == CMD_HLT) {
             break;
@@ -98,7 +102,7 @@ int SPURun(SPU* spu) {
             if(current_cmd == CMD_POP) {
                 int pop_elem = 0;
                 CHECKED_ StackPop(&(spu->stk), &pop_elem);
-                // fprintf(stderr, "popped elem: %d\n", pop_elem);
+
             }
 
             else if((current_cmd & mem_mask) == mem_mask) {
@@ -282,15 +286,15 @@ void SPUDump(SPU* spu) {
     fprintf(debug, "size of code: %ld\n", spu->code_size);
     fprintf(debug, "code: \n");
     for(size_t i = 0; i < spu->code_size; i++) {
-        fprintf(debug, "%2ld|", i);
+        fprintf(debug, "%3ld|", i);
     }
     fprintf(debug, "\n");
     for(size_t i = 0; i < spu->code_size; i++) {
-        fprintf(debug, "---");
+        fprintf(debug, "----");
     }
     fprintf(debug, "\n");
     for(size_t i = 0; i < spu->code_size; i++) {
-        fprintf(debug, "%2d|", spu->code[i]);
+        fprintf(debug, "%3d|", spu->code[i]);
     }
     fprintf(debug, "\n");
     for(size_t i = 0; i < spu->ip; i++) {
