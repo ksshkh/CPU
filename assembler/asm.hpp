@@ -43,9 +43,7 @@ int ProgramInput(Assembler* asmblr);
 
 int AsmCtor(Assembler* asmblr);
 
-int count_num_of_words(const Assembler* asmblr);
-
-int count_num_of_cmds(const Assembler* asmblr);
+void elements_counter(Assembler* asmblr);
 
 int CommandsParcing(Assembler* asmblr);
 

@@ -9,8 +9,7 @@ int AsmCtor(Assembler* asmblr) {
 
     CHECKED_ ProgramInput(asmblr);
 
-    asmblr->n_cmd = count_num_of_cmds(asmblr);
-    asmblr->n_words = count_num_of_words(asmblr);
+    elements_counter(asmblr);
 
     asmblr->lbls = (Label*)calloc(NUM_OF_LABELS, sizeof(Label));
     MY_ASSERT(asmblr->lbls != NULL, PTR_ERROR);
@@ -41,21 +40,33 @@ int ProgramInput(Assembler* asmblr) {
     return code_error;
 }
 
-// объединить
-
-int count_num_of_words(const Assembler* asmblr) {
+void elements_counter(Assembler* asmblr) {
 
     int counter_words = 0;
     int counter_labels = 0;
+    int counter_cmds = 0;
+
+    int begin_flag = 0;
 
     for(size_t i = 0; i < asmblr->size_file; i++) {
 
-        if(isspace(asmblr->buf_input[i])) {
+        if(isspace(asmblr->buf_input[i]) && begin_flag != 0) {
+
+            if(asmblr->buf_input[i] == '\n') {
+                if(asmblr->buf_input[i - 1] != '\n') {
+                    counter_cmds++;
+                }
+            }
+
             if(isspace(asmblr->buf_input[i + 1])) {
                 continue;
             }
             counter_words++;
         }
+        else if(!isspace(asmblr->buf_input[i])) {
+            begin_flag = 1;
+        }
+
         if(asmblr->buf_input[i] == '+') {
                 counter_words--;
         }
@@ -64,26 +75,11 @@ int count_num_of_words(const Assembler* asmblr) {
         }
     }
 
-    counter_words = counter_words - (counter_labels / 2);
+    counter_words = counter_words - (counter_labels / 2) + 1;
 
-    return counter_words + 1;
-}
+    asmblr->n_words = counter_words;
+    asmblr->n_cmd = counter_cmds + 1;
 
-int count_num_of_cmds(const Assembler* asmblr) {
-
-    int counter_cmds = 0;
-
-    for(size_t i = 0; i < asmblr->size_file; i++) {
-
-        if(asmblr->buf_input[i] == '\n') {
-            if(asmblr->buf_input[i + 1] == '\n') {
-                continue;
-            }
-            counter_cmds++;
-        }
-    }
-
-    return counter_cmds + 1;
 }
 
 int Parcing(Assembler* asmblr) {
