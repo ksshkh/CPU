@@ -319,11 +319,11 @@ void SPUDump(SPU* spu) {
     }
     fprintf(debug, "\n");
     for(size_t i = 0; i < spu->ip; i++) {
-        fprintf(debug, "   ");
+        fprintf(debug, "    ");
     }
     fprintf(debug, "^\n");
     for(size_t i = 0; i < spu->ip; i++) {
-        fprintf(debug, "   ");
+        fprintf(debug, "    ");
     }
     fprintf(debug, "ip = %ld\n", spu->ip);
     fprintf(debug, "registers: ");

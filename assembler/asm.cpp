@@ -118,29 +118,29 @@ int CommandsParcing(Assembler* asmblr) {
     MY_ASSERT(asmblr->buf_output != NULL, PTR_ERROR);
 
     for(int twice_comp = 0; twice_comp < 2; twice_comp++) {
-        
+
         int buff_indx = 0;
 
         for(size_t i = 0; i < asmblr->n_cmd; i++, buff_indx++) {
 
             char* cmd = asmblr->cmds[i].cmd;
 
-            if(!strncmp(cmd, "hlt", 3)) {
+            if(!strcmp(cmd, "hlt")) {
                 asmblr->cmds[i].cmd_code = CMD_HLT;
                 asmblr->buf_output[buff_indx] = CMD_HLT;
             }
 
-            else if(!strncmp(cmd, "dump", 4)) {
+            else if(!strcmp(cmd, "dump")) {
                 asmblr->cmds[i].cmd_code = CMD_DUMP;
                 asmblr->buf_output[buff_indx] = CMD_DUMP;
             }
 
-            else if(!strncmp(cmd, "out", 3)) {
+            else if(!strcmp(cmd, "out")) {
                 asmblr->cmds[i].cmd_code = CMD_OUT;
                 asmblr->buf_output[buff_indx] = CMD_OUT;
             }
 
-            else if(!strncmp(cmd, "in", 2)) {
+            else if(!strcmp(cmd, "in")) {
                 asmblr->cmds[i].cmd_code = CMD_IN;
                 asmblr->buf_output[buff_indx] = CMD_IN;
             }
@@ -184,37 +184,37 @@ int CommandsParcing(Assembler* asmblr) {
                 }
             }
 
-            else if(!strncmp(cmd, "add", 3)) {
+            else if(!strcmp(cmd, "add")) {
                 asmblr->cmds[i].cmd_code = CMD_ADD;
                 asmblr->buf_output[buff_indx] = CMD_ADD;
             }
 
-            else if(!strncmp(cmd, "sub", 3)) {
+            else if(!strcmp(cmd, "sub")) {
                 asmblr->cmds[i].cmd_code = CMD_SUB;
                 asmblr->buf_output[buff_indx] = CMD_SUB;
             }
 
-            else if(!strncmp(cmd, "mul", 3)) {
+            else if(!strcmp(cmd, "mul")) {
                 asmblr->cmds[i].cmd_code = CMD_MUL;
                 asmblr->buf_output[buff_indx] = CMD_MUL;
             }
 
-            else if(!strncmp(cmd, "div", 3)) {
+            else if(!strcmp(cmd, "div")) {
                 asmblr->cmds[i].cmd_code = CMD_DIV;
                 asmblr->buf_output[buff_indx] = CMD_DIV;
             }
 
-            else if(!strncmp(cmd, "sqrt", 4)) {
+            else if(!strcmp(cmd, "sqrt")) {
                 asmblr->cmds[i].cmd_code = CMD_SQRT;
                 asmblr->buf_output[buff_indx] = CMD_SQRT;
             }
 
-            else if(!strncmp(cmd, "sin", 3)) {
+            else if(!strcmp(cmd, "sin")) {
                 asmblr->cmds[i].cmd_code = CMD_SIN;
                 asmblr->buf_output[buff_indx] = CMD_SIN;
             }
 
-            else if(!strncmp(cmd, "cos", 3)) {
+            else if(!strcmp(cmd, "cos")) {
                 asmblr->cmds[i].cmd_code = CMD_COS;
                 asmblr->buf_output[buff_indx] = CMD_COS;
             }
