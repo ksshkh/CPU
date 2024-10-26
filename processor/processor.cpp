@@ -313,7 +313,7 @@ int SPURun(SPU* spu) {
 }
 
 void SPUDump(SPU* spu) {
-    FILE* debug = fopen("../debug/dump.txt", "a");
+    FILE* debug = fopen("../debug/processor_dump.txt", "a");
     fprintf(debug, "size of code: %ld\n", spu->code_size);
     fprintf(debug, "code: \n");
     for(size_t i = 0; i < spu->code_size; i++) {

@@ -10,7 +10,7 @@ int AsmCtor(Assembler* asmblr, int argc, char* argv[]) {
     else if(argc == 2) {
         asmblr->file_name_input = argv[1];
     }
-    
+
     asmblr->file_name_print_txt = "result.bin";
 
     CHECKED_ ProgramInput(asmblr);
@@ -470,29 +470,32 @@ int LabelFind(char* cmd, Assembler* asmblr) {
 }
 
 void AsmDump(Assembler* asmblr) {
+    FILE* debug = fopen("../debug/assembler_dump.txt", "a");
 
-    fprintf(stderr, "commands table:\n");
+    fprintf(debug, "commands table:\n");
 
     for(size_t i = 0; i < asmblr->n_cmd; i++) {
-        fprintf(stderr, "%s\n", asmblr->cmds[i].cmd);
-        fprintf(stderr, "cmd code: %d argument: %d register: %d label: %d\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
-        fprintf(stderr, "\n");
+        fprintf(debug, "%s\n", asmblr->cmds[i].cmd);
+        fprintf(debug, "cmd code: %d argument: %d register: %d label: %d\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
+        fprintf(debug, "\n");
     }
 
-    fprintf(stderr, "labels table:\n");
+    fprintf(debug, "labels table:\n");
 
     for(size_t i = 0; i < NUM_OF_LABELS; i++) {
-        fprintf(stderr, "address: %d name: %s", asmblr->lbls[i].address, asmblr->lbls[i].name);
-        fprintf(stderr, "\n");
+        fprintf(debug, "address: %d name: %s", asmblr->lbls[i].address, asmblr->lbls[i].name);
+        fprintf(debug, "\n");
     }
 
-    fprintf(stderr, "output buffer:\n");
+    fprintf(debug, "output buffer:\n");
 
     for(size_t i = 0; i < asmblr->n_words; i++) {
-        fprintf(stderr, "%d ", asmblr->buf_output[i]);
+        fprintf(debug, "%d ", asmblr->buf_output[i]);
     }
 
-    fprintf(stderr, "\n");
+    fprintf(debug, "\n");
+
+    fclose(debug);
 }
 
 int AsmDtor(Assembler* asmblr) {

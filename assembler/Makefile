@@ -27,5 +27,5 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	rm -rf *.o
 	rm -rf *.bin
-	rm -rf result.txt
+	rm -rf ../debug/assembler_dump.txt
 	rm -rf asm
