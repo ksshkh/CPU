@@ -27,7 +27,10 @@ enum Commands_code {
     CMD_JBE,
     CMD_JE,
     CMD_JNE,
-    CMD_JMP
+    CMD_JMP,
+
+    CALL,
+    RET,
 };
 
 enum Registers {
@@ -38,9 +41,9 @@ enum Registers {
     dx
 };
 
-const int ARGC_MASK = 1 << 4;
-const int REG_MASK = 1 << 5;
-const int MEM_MASK = 1 << 6;
+const int ARGC_MASK = 1 << 5;
+const int REG_MASK = 1 << 6;
+const int MEM_MASK = 1 << 7;
 
 const int VALUE_DEFAULT = -2;
 const int NUM_OF_LABELS = 20;

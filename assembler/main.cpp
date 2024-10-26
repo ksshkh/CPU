@@ -1,9 +1,8 @@
 #include "asm.hpp"
 
-int main(void) {
+int main(int argc, char* argv[]) {
     Assembler asmblr = {0};
-    AsmCtor(&asmblr);
-    // fprintf(stderr, "words: %d cmds: %d\n", asmblr.n_words, asmblr.n_cmd);
+    AsmCtor(&asmblr, argc, argv);
     CHECKED_ BufferParcing(&asmblr);
     CHECKED_ CommandsParcing(&asmblr);
     AsmDump(&asmblr);

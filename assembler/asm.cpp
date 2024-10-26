@@ -1,10 +1,16 @@
 #include "asm.hpp"
 
-int AsmCtor(Assembler* asmblr) {
+int AsmCtor(Assembler* asmblr, int argc, char* argv[]) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
-    asmblr->file_name_input = "program.txt";
+    if(argc == 1) {
+        asmblr->file_name_input = "program.txt";
+    }
+    else if(argc == 2) {
+        asmblr->file_name_input = argv[1];
+    }
+    
     asmblr->file_name_print_txt = "result.bin";
 
     CHECKED_ ProgramInput(asmblr);
@@ -287,6 +293,21 @@ int CommandsParcing(Assembler* asmblr) {
                 asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
                 buff_indx++;
                 asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
+            }
+
+            else if(!strncmp(cmd, "call", 4)) {
+                char* argc = &(asmblr->cmds[i].cmd[5]);
+
+                asmblr->cmds[i].cmd_code = CALL;
+                ArgumentsParcing(asmblr, i, argc);
+                asmblr->buf_output[buff_indx] = CALL;
+                buff_indx++;
+                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
+            }
+
+            else if(!strcmp(cmd, "ret")) {
+                asmblr->cmds[i].cmd_code = RET;
+                asmblr->buf_output[buff_indx] = RET;
             }
 
             else if(strchr(cmd, ':') != NULL) {

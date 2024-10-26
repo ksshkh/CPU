@@ -41,7 +41,7 @@ struct Assembler {
 
 int ProgramInput(Assembler* asmblr);
 
-int AsmCtor(Assembler* asmblr);
+int AsmCtor(Assembler* asmblr, int argc, char* argv[]);
 
 void ElemetsCounter(Assembler* asmblr);
 

@@ -25,6 +25,8 @@ struct SPU {
 
     Stack_t stk = {};
 
+    Stack_t funcstk = {};
+
     int* registers = NULL;
     int* ram = NULL;
 };

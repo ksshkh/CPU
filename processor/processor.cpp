@@ -4,6 +4,7 @@ int SPUCtor(SPU* spu) {
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
     CHECKED_ STACK_CTOR(&spu->stk, InitCapacity);
+    CHECKED_ STACK_CTOR(&spu->funcstk, InitCapacity);
 
     spu->file_name_input = "../assembler/result.bin";
 
@@ -35,8 +36,6 @@ int CodeReader(SPU* spu) {
 
     return code_error;
 }
-
-// optimize
 
 int SPURun(SPU* spu) {
     spu->ip = 0;
@@ -297,6 +296,17 @@ int SPURun(SPU* spu) {
             spu->ip = spu->code[spu->ip + 1] - 1;
         }
 
+        else if(current_cmd == CALL) {
+            CHECKED_ StackPush(&(spu->funcstk), spu->ip + 2);
+            spu->ip = spu->code[spu->ip + 1] - 1;
+        }
+
+        else if(current_cmd == RET) {
+            int ret_address = 0;
+            CHECKED_ StackPop(&(spu->funcstk), &ret_address);
+            spu->ip = ret_address - 1;
+        }
+
         (spu->ip)++;
     }
     return code_error;
@@ -336,8 +346,12 @@ void SPUDump(SPU* spu) {
         fprintf(debug, "%d ", spu->ram[i]);
     }
     fprintf(debug, "\n");
-    fclose(debug);
+    fprintf(debug, "Stack:\n");
     STACK_DUMP(&(spu->stk));
+    fprintf(debug, "Function stack:\n");
+    STACK_DUMP(&(spu->funcstk));
+
+    fclose(debug);
 }
 
 int SpuDtor(SPU* spu) {
