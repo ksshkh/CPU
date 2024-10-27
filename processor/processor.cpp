@@ -254,7 +254,10 @@ int SPURun(SPU* spu) {
             fprintf(stderr, "%c\n", x);
         }
         else if(current_cmd == CMD_DRAW) {
-            for(size_t i = 1; i <= RAM_SIZE; i++) {
+            StackElem_t line = 0;
+            CHECKED_ StackPop(&(spu->stk), &line);
+
+            for(size_t i = 1; i <= (line * line); i++) {
                 if(spu->ram[i - 1] != 0) {
                     fprintf(stderr, "*");
                 }
@@ -262,7 +265,7 @@ int SPURun(SPU* spu) {
                     fprintf(stderr, " ");
                 }
 
-                if(i % ram_line == 0) {
+                if(i % line == 0) {
                     fprintf(stderr, "\n");
                 }
             }
@@ -285,7 +288,7 @@ int GetArgument(SPU* spu, int current_cmd, int* argument) {
         *argument = temp_arg_reg + temp_arg_argc;
     }
     else if(current_cmd & REG_MASK) {
-        if((current_cmd & CHECK_MASK) == CMD_POP) {
+        if((current_cmd & CHECK_MASK) == CMD_POP && !(current_cmd & MEM_MASK)) {
             *argument = spu->code[spu->ip] - 1;
             return code_error;
         }

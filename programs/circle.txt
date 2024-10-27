@@ -32,6 +32,7 @@ pop [44]
 pop [45]
 pop [46]
 
+push 7
 draw
 
 hlt

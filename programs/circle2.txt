@@ -1,0 +1,82 @@
+in
+pop ax
+
+push ax
+pop cx
+
+push 0
+pop bx
+
+push cx
+push 2
+div
+pop cx
+call fill:
+
+push 1
+pop bx
+
+loop:
+    push cx
+    push 0
+    je revloop:
+
+    push cx
+    push 1
+    sub
+    pop cx
+
+    call fill:
+
+    push bx
+    push 1
+    add
+    pop bx
+    push bx
+    push ax
+    jb loop:
+
+revloop:
+    push cx
+    push 1
+    add
+    pop cx
+
+    call fill:
+
+    push bx
+    push 1
+    add
+    pop bx
+    push bx
+    push ax
+    jb revloop:
+
+
+push ax
+draw
+hlt
+
+fill:
+    push bx
+    push ax
+    mul
+    push cx
+    add
+    pop dx
+    push 1
+    pop [dx]
+
+    push bx
+    push 1
+    add
+    push ax
+    mul
+    push 1
+    sub
+    push cx
+    sub
+    pop dx
+    push 1
+    pop [dx]
+    ret
