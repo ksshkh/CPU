@@ -39,23 +39,27 @@ struct Assembler {
     Label* lbls = NULL;
 };
 
+const int NUM_OF_LABELS = 20;
+
 int ProgramInput(Assembler* asmblr);
 
 int AsmCtor(Assembler* asmblr, int argc, char* argv[]);
 
-void ElemetsCounter(Assembler* asmblr);
+int ElemetsCounter(Assembler* asmblr);
 
 int CommandsParcing(Assembler* asmblr);
 
 int BufferParcing(Assembler* asmblr);
 
-void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
+int BufferFilling(Assembler* asmblr);
 
-void ArgsHandling(Assembler* asmblr, size_t i, char* argc);
+int ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
+
+int ArgumentsHandling(Assembler* asmblr, size_t i, char* argc);
 
 int Output(Assembler* asmblr);
 
-void LabelInsert(char* cmd, Assembler* asmblr, int* j);
+int LabelInsert(char* cmd, Assembler* asmblr, int* j);
 
 int LabelFind(char* cmd, Assembler* asmblr);
 

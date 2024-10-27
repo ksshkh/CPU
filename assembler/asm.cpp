@@ -3,6 +3,7 @@
 int AsmCtor(Assembler* asmblr, int argc, char* argv[]) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    MY_ASSERT(argv != NULL, PTR_ERROR);
 
     if(argc == 1) {
         asmblr->file_name_input = "program.txt";
@@ -15,14 +16,17 @@ int AsmCtor(Assembler* asmblr, int argc, char* argv[]) {
 
     CHECKED_ ProgramInput(asmblr);
 
-    ElemetsCounter(asmblr);
+    CHECKED_ ElemetsCounter(asmblr);
 
     asmblr->lbls = (Label*)calloc(NUM_OF_LABELS, sizeof(Label));
     MY_ASSERT(asmblr->lbls != NULL, PTR_ERROR);
 
     for(int i = 0; i < NUM_OF_LABELS; i++) {
-        asmblr->lbls[i].address = -1;
+        asmblr->lbls[i].address = VALUE_DEFAULT;
     }
+
+    asmblr->buf_output = (int*)calloc(asmblr->n_words, sizeof(int));
+    MY_ASSERT(asmblr->buf_output != NULL, PTR_ERROR);
 
     return code_error;
 }
@@ -46,17 +50,19 @@ int ProgramInput(Assembler* asmblr) {
     return code_error;
 }
 
-void ElemetsCounter(Assembler* asmblr) {
+int ElemetsCounter(Assembler* asmblr) {
 
-    int counter_words = 0;
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+
+    int counter_words  = 0;
     int counter_labels = 0;
-    int counter_cmds = 0;
+    int counter_cmds   = 0;
 
-    int begin_flag = 0;
+    bool is_begin = false;
 
     for(size_t i = 0; i < asmblr->size_file; i++) {
 
-        if(isspace(asmblr->buf_input[i]) && begin_flag != 0) {
+        if(isspace(asmblr->buf_input[i]) && is_begin) {
 
             if(asmblr->buf_input[i] == '\n') {
                 if(asmblr->buf_input[i - 1] != '\n') {
@@ -67,10 +73,11 @@ void ElemetsCounter(Assembler* asmblr) {
             if(isspace(asmblr->buf_input[i + 1])) {
                 continue;
             }
+
             counter_words++;
         }
         else if(!isspace(asmblr->buf_input[i])) {
-            begin_flag = 1;
+            is_begin = true;
         }
 
         if(asmblr->buf_input[i] == '+') {
@@ -86,16 +93,19 @@ void ElemetsCounter(Assembler* asmblr) {
     asmblr->n_words = counter_words;
     asmblr->n_cmd = counter_cmds + 1;
 
+    return code_error;
 }
 
 int BufferParcing(Assembler* asmblr) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
-    asmblr->cmds = (Command*) calloc(asmblr->n_cmd, sizeof(Command));
+    asmblr->cmds = (Command*)calloc(asmblr->n_cmd, sizeof(Command));
     MY_ASSERT(asmblr->cmds, PTR_ERROR);
 
     asmblr->cmds[0].cmd = asmblr->buf_input;
+    asmblr->cmds[0].label = VALUE_DEFAULT;
+    asmblr->cmds[0].cmd_code = CMD_DEFAULT;
     int j = 1;
 
     for(size_t i = 0; i < asmblr->size_file; i++) {
@@ -109,6 +119,8 @@ int BufferParcing(Assembler* asmblr) {
 
             asmblr->buf_input[i] = '\0';
             asmblr->cmds[j].cmd = (asmblr->buf_input + i + 1);
+            asmblr->cmds[j].label = VALUE_DEFAULT;
+            asmblr->cmds[j].cmd_code = CMD_DEFAULT;
             j++;
         }
     }
@@ -133,187 +145,119 @@ int CommandsParcing(Assembler* asmblr) {
 
             if(!strcmp(cmd, "hlt")) {
                 asmblr->cmds[i].cmd_code = CMD_HLT;
-                asmblr->buf_output[buff_indx] = CMD_HLT;
             }
-
             else if(!strcmp(cmd, "dump")) {
                 asmblr->cmds[i].cmd_code = CMD_DUMP;
-                asmblr->buf_output[buff_indx] = CMD_DUMP;
             }
-
             else if(!strcmp(cmd, "out")) {
                 asmblr->cmds[i].cmd_code = CMD_OUT;
-                asmblr->buf_output[buff_indx] = CMD_OUT;
             }
-
             else if(!strcmp(cmd, "in")) {
                 asmblr->cmds[i].cmd_code = CMD_IN;
-                asmblr->buf_output[buff_indx] = CMD_IN;
             }
-
             else if(!strncmp(cmd, "push", 4)) {
                 char* argc = &(asmblr->cmds[i].cmd[5]);
-                int flag = 0;
 
                 asmblr->cmds[i].cmd_code = CMD_PUSH;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                if((asmblr->cmds[i].cmd_code & ARGC_MASK) == ARGC_MASK) {
-                    asmblr->buf_output[buff_indx] = asmblr->cmds[i].argc;
-                    flag++;
-                }
-                if((asmblr->cmds[i].cmd_code & REG_MASK) == REG_MASK) {
-                    asmblr->buf_output[buff_indx] = asmblr->cmds[i].reg;
-                    flag++;
-                }
-                if(flag == 2) {
-                    asmblr->buf_output[buff_indx] = asmblr->cmds[i].reg;
+
+                if((asmblr->cmds[i].cmd_code & ARGC_MASK) && (asmblr->cmds[i].cmd_code & REG_MASK)) {
                     buff_indx++;
-                    asmblr->buf_output[buff_indx] = asmblr->cmds[i].argc;
                 }
             }
-
             else if(!strncmp(cmd, "pop", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_POP;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
-                if((asmblr->cmds[i].cmd_code & REG_MASK) == REG_MASK) {
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
+
+                if((asmblr->cmds[i].cmd_code & ARGC_MASK) || (asmblr->cmds[i].cmd_code & REG_MASK)) {
                     buff_indx++;
-                    asmblr->buf_output[buff_indx] = asmblr->cmds[i].reg;
-                }
-                if((asmblr->cmds[i].cmd_code & ARGC_MASK) == ARGC_MASK) {
-                    buff_indx++;
-                    asmblr->buf_output[buff_indx] = asmblr->cmds[i].argc;
                 }
             }
-
             else if(!strcmp(cmd, "add")) {
                 asmblr->cmds[i].cmd_code = CMD_ADD;
-                asmblr->buf_output[buff_indx] = CMD_ADD;
             }
-
             else if(!strcmp(cmd, "sub")) {
                 asmblr->cmds[i].cmd_code = CMD_SUB;
-                asmblr->buf_output[buff_indx] = CMD_SUB;
             }
-
             else if(!strcmp(cmd, "mul")) {
                 asmblr->cmds[i].cmd_code = CMD_MUL;
-                asmblr->buf_output[buff_indx] = CMD_MUL;
             }
-
             else if(!strcmp(cmd, "div")) {
                 asmblr->cmds[i].cmd_code = CMD_DIV;
-                asmblr->buf_output[buff_indx] = CMD_DIV;
             }
-
             else if(!strcmp(cmd, "sqrt")) {
                 asmblr->cmds[i].cmd_code = CMD_SQRT;
-                asmblr->buf_output[buff_indx] = CMD_SQRT;
             }
-
             else if(!strcmp(cmd, "sin")) {
                 asmblr->cmds[i].cmd_code = CMD_SIN;
-                asmblr->buf_output[buff_indx] = CMD_SIN;
             }
-
             else if(!strcmp(cmd, "cos")) {
                 asmblr->cmds[i].cmd_code = CMD_COS;
-                asmblr->buf_output[buff_indx] = CMD_COS;
             }
-
             else if(!strncmp(cmd, "jae", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JAE;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "ja", 2)) {
                 char* argc = &(asmblr->cmds[i].cmd[3]);
 
                 asmblr->cmds[i].cmd_code = CMD_JA;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "jbe", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JBE;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "jb", 2)) {
                 char* argc = &(asmblr->cmds[i].cmd[3]);
 
                 asmblr->cmds[i].cmd_code = CMD_JB;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "je", 2)) {
                 char* argc = &(asmblr->cmds[i].cmd[3]);
 
                 asmblr->cmds[i].cmd_code = CMD_JE;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "jne", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JNE;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "jmp", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JMP;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].cmd_code;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strncmp(cmd, "call", 4)) {
                 char* argc = &(asmblr->cmds[i].cmd[5]);
-
                 asmblr->cmds[i].cmd_code = CALL;
-                ArgumentsParcing(asmblr, i, argc);
-                asmblr->buf_output[buff_indx] = CALL;
+                CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
-                asmblr->buf_output[buff_indx] = asmblr->cmds[i].label;
             }
-
             else if(!strcmp(cmd, "ret")) {
                 asmblr->cmds[i].cmd_code = RET;
-                asmblr->buf_output[buff_indx] = RET;
             }
-
             else if(strchr(cmd, ':') != NULL) {
-                LabelInsert(cmd, asmblr, &buff_indx);
+                CHECKED_ LabelInsert(cmd, asmblr, &buff_indx);
             }
-
             else {
                 fprintf(stderr, "SNTXERR: '%s'\n", cmd);
             }
@@ -323,26 +267,28 @@ int CommandsParcing(Assembler* asmblr) {
     return code_error;
 }
 
-void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
+int ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
+
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    MY_ASSERT(argc != NULL, PTR_ERROR);
+
     char* close_sym = NULL;
     char* space_sym = NULL;
 
     if(strchr(argc, ':') != NULL) {
         int addr = LabelFind(argc, asmblr);
 
-        if(addr != -1) {
+        if(addr != VALUE_DEFAULT) {
             asmblr->cmds[i].label = addr;
         }
         else {
-            int err_addr = -1;
-            char* label_name = strchr(argc, ' ') + 1;
-            LabelInsert(label_name, asmblr, &err_addr);
+            CHECKED_ LabelInsert(argc, asmblr, &addr);
         }
-        return;
+        return code_error;
     }
 
     if(strlen(argc - 4) == 3) { //just pop
-        return;
+        return code_error;
     }
 
     if(*argc == '[') {
@@ -366,37 +312,42 @@ void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
         char* reg = argc;
         char* arg = argc + 5;
 
-        ArgsHandling(asmblr, i, reg);
-        ArgsHandling(asmblr, i, arg);
+        CHECKED_ ArgumentsHandling(asmblr, i, reg);
+        CHECKED_ ArgumentsHandling(asmblr, i, arg);
 
         *space_sym = ' ';
     }
     else {
-        ArgsHandling(asmblr, i, argc);
+        CHECKED_ ArgumentsHandling(asmblr, i, argc);
     }
 
     if(close_sym != NULL) {
         *close_sym = ']';
     }
+
+    return code_error;
 }
 
-void ArgsHandling(Assembler* asmblr, size_t i, char* argc) {
+int ArgumentsHandling(Assembler* asmblr, size_t i, char* argc) {
+
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    MY_ASSERT(argc != NULL, PTR_ERROR);
 
     int param = atoi(argc);
     if(*(argc + 1) == 'x') {
         asmblr->cmds[i].cmd_code |= REG_MASK;
 
         if(*argc == 'a') {
-            asmblr->cmds[i].reg = ax;
+            asmblr->cmds[i].reg = AX;
         }
         else if(*argc == 'b') {
-            asmblr->cmds[i].reg = bx;
+            asmblr->cmds[i].reg = BX;
         }
         else if(*argc == 'c') {
-            asmblr->cmds[i].reg = cx;
+            asmblr->cmds[i].reg = CX;
         }
         else if(*argc == 'd') {
-            asmblr->cmds[i].reg = dx;
+            asmblr->cmds[i].reg = DX;
         }
     }
     else {
@@ -408,6 +359,37 @@ void ArgsHandling(Assembler* asmblr, size_t i, char* argc) {
         asmblr->cmds[i].label = param;
         asmblr->cmds[i].cmd_code ^= ARGC_MASK;
     }
+
+    return code_error;
+}
+
+int BufferFilling(Assembler* asmblr) {
+
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+
+    int buff_indx = 0;
+    for(size_t i = 0; i < asmblr->n_cmd; i++) {
+
+        if(asmblr->cmds[i].cmd_code == CMD_DEFAULT) {
+            continue;
+        }
+
+        asmblr->buf_output[buff_indx++] = asmblr->cmds[i].cmd_code;
+
+        if(asmblr->cmds[i].label != VALUE_DEFAULT) {
+            asmblr->buf_output[buff_indx++] = asmblr->cmds[i].label;
+        }
+
+        if((asmblr->cmds[i].cmd_code & REG_MASK) && asmblr->cmds[i].cmd_code != CMD_HLT) {
+            asmblr->buf_output[buff_indx++] = asmblr->cmds[i].reg;
+        }
+
+        if((asmblr->cmds[i].cmd_code & ARGC_MASK) && asmblr->cmds[i].cmd_code != CMD_HLT) {
+            asmblr->buf_output[buff_indx++] = asmblr->cmds[i].argc;
+        }
+    }
+
+    return code_error;
 }
 
 int Output(Assembler* asmblr) {
@@ -424,7 +406,11 @@ int Output(Assembler* asmblr) {
     return code_error;
 }
 
-void LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx) {
+int LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx) {
+
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    MY_ASSERT(cmd != NULL, PTR_ERROR);
+    MY_ASSERT(buff_indx != NULL, PTR_ERROR);
 
     size_t i = 0;
     while(i < NUM_OF_LABELS) {
@@ -434,7 +420,7 @@ void LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx) {
                 break;
             }
         }
-        else if(asmblr->lbls[i].address == -1) {
+        else if(asmblr->lbls[i].address == VALUE_DEFAULT) {
             break;
         }
 
@@ -443,25 +429,30 @@ void LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx) {
 
     asmblr->lbls[i].address = *buff_indx;
     asmblr->lbls[i].name = cmd;
-    (*buff_indx)--;
+    *(buff_indx) -= 1;
+
+    return code_error;
 }
 
 int LabelFind(char* cmd, Assembler* asmblr) {
+
+    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    MY_ASSERT(cmd != NULL, PTR_ERROR);
 
     size_t i = 0;
 
     while(i < NUM_OF_LABELS) {
 
         if(asmblr->lbls[i].name != NULL) {
-            if(strcmp(cmd, asmblr->lbls[i].name) == 0) {
+            if(!strcmp(cmd, asmblr->lbls[i].name)) {
                 break;
             }
         }
         i++;
     }
 
-    if(i > NUM_OF_LABELS) {
-        return -1;
+    if(i >= NUM_OF_LABELS) {
+        return VALUE_DEFAULT;
     }
 
     int addr = asmblr->lbls[i].address;
@@ -470,32 +461,67 @@ int LabelFind(char* cmd, Assembler* asmblr) {
 }
 
 void AsmDump(Assembler* asmblr) {
+
     FILE* debug = fopen("../debug/assembler_dump.txt", "a");
 
-    fprintf(debug, "commands table:\n");
+    if(debug != NULL) {
 
-    for(size_t i = 0; i < asmblr->n_cmd; i++) {
-        fprintf(debug, "%s\n", asmblr->cmds[i].cmd);
-        fprintf(debug, "cmd code: %d argument: %d register: %d label: %d\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
-        fprintf(debug, "\n");
+        my_strerr(code_error, debug);
+
+        if(code_error) {
+            fprintf(stderr, "code error %d\n", code_error);
+        }
+
+        if(asmblr != NULL) {
+            fprintf(debug, "number of commands: %ld\nmumber of words: %ld\n", asmblr->n_cmd, asmblr->n_words);
+
+            if(asmblr->cmds != NULL) {
+                fprintf(debug, "\ncommands table:\n\n");
+
+                for(size_t i = 0; i < asmblr->n_cmd; i++) {
+                    fprintf(debug, "%s\n", asmblr->cmds[i].cmd);
+                    fprintf(debug, "cmd code: %d argument: %d register: %d label: %d\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
+                }
+            }
+            else {
+                fprintf(debug, "no commands table\n");
+            }
+
+            if(asmblr->lbls != NULL) {
+                fprintf(debug, "\nlabels table:\n\n");
+
+                for(size_t i = 0; i < NUM_OF_LABELS; i++) {
+                    fprintf(debug, "address: %d name: %s\n", asmblr->lbls[i].address, asmblr->lbls[i].name);
+                }
+            }
+            else {
+                fprintf(debug, "no labels table\n");
+            }
+
+            if(asmblr->buf_output != NULL) {
+                fprintf(debug, "\noutput buffer:\n\n");
+
+                for(size_t i = 0; i < asmblr->n_words; i++) {
+                    fprintf(debug, "%d ", asmblr->buf_output[i]);
+                }
+
+                fprintf(debug, "\n");
+            }
+            else {
+                fprintf(debug, "no output buffer\n");
+            }
+        }
+        else {
+            fprintf(debug, "no asmblr\n");
+        }
+
+        if(fclose(debug)) {
+            fprintf(stderr, "file did not close\n");
+        }
     }
-
-    fprintf(debug, "labels table:\n");
-
-    for(size_t i = 0; i < NUM_OF_LABELS; i++) {
-        fprintf(debug, "address: %d name: %s", asmblr->lbls[i].address, asmblr->lbls[i].name);
-        fprintf(debug, "\n");
+    else {
+        fprintf(stderr, "file did not open\n");
     }
-
-    fprintf(debug, "output buffer:\n");
-
-    for(size_t i = 0; i < asmblr->n_words; i++) {
-        fprintf(debug, "%d ", asmblr->buf_output[i]);
-    }
-
-    fprintf(debug, "\n");
-
-    fclose(debug);
 }
 
 int AsmDtor(Assembler* asmblr) {
@@ -507,6 +533,7 @@ int AsmDtor(Assembler* asmblr) {
 
     free(asmblr->buf_input);
     asmblr->buf_input = NULL;
+
     free(asmblr->buf_output);
     asmblr->buf_output = NULL;
 
@@ -516,6 +543,7 @@ int AsmDtor(Assembler* asmblr) {
 
     free(asmblr->cmds);
     asmblr->cmds = NULL;
+
     free(asmblr->lbls);
     asmblr->lbls = NULL;
 
