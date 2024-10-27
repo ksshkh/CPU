@@ -8,7 +8,7 @@
 
 #include "../errors.hpp"
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
     #define ON_DEBUG(code) code

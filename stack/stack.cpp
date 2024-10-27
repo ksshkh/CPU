@@ -1,6 +1,6 @@
 #include "stack.hpp"
 
-static const char * DEBUG_FILE_NAME = "../debug/dump.txt";
+static const char * DEBUG_FILE_NAME = "../debug/processor_dump.txt";
 
 int StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line) {
 

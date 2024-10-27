@@ -34,7 +34,7 @@ enum Errors {
 #define MY_ASSERT(expression, err) if(!(expression)) {                                                                      \
     fprintf(stderr, ERR("%s: %d (%s) My assertion failed: \"" #expression "\""), __FILE__, __LINE__, __func__);             \
     code_error |= err;                                                                                                      \
-    return code_error;                                                                                                             \
+    return code_error;                                                                                                      \
 }
 
 static int code_error = 0;

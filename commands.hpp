@@ -8,6 +8,7 @@
 
 enum Commands_code {
     CMD_DEFAULT = -2,
+
     CMD_HLT,
     CMD_DUMP,
     CMD_PUSH,
@@ -35,18 +36,18 @@ enum Commands_code {
 
 enum Registers {
     REG_DEFAULT,
-    ax,
-    bx,
-    cx,
-    dx
+
+    AX,
+    BX,
+    CX,
+    DX
 };
 
 const int ARGC_MASK = 1 << 5;
-const int REG_MASK = 1 << 6;
-const int MEM_MASK = 1 << 7;
+const int REG_MASK  = 1 << 6;
+const int MEM_MASK  = 1 << 7;
 
 const int VALUE_DEFAULT = -2;
-const int NUM_OF_LABELS = 20;
 
 long int count_size_file(FILE* program);
 
