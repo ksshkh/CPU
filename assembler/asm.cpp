@@ -6,13 +6,13 @@ int AsmCtor(Assembler* asmblr, int argc, char* argv[]) {
     MY_ASSERT(argv != NULL, PTR_ERROR);
 
     if(argc == 1) {
-        asmblr->file_name_input = "program.txt";
+        asmblr->file_name_input = "../programs/program.txt";
     }
     else if(argc == 2) {
         asmblr->file_name_input = argv[1];
     }
 
-    asmblr->file_name_print_txt = "result.bin";
+    asmblr->file_name_print_txt = "../programs/result.bin";
 
     CHECKED_ ProgramInput(asmblr);
 
@@ -103,12 +103,17 @@ int BufferParcing(Assembler* asmblr) {
     asmblr->cmds = (Command*)calloc(asmblr->n_cmd, sizeof(Command));
     MY_ASSERT(asmblr->cmds, PTR_ERROR);
 
-    asmblr->cmds[0].cmd = asmblr->buf_input;
+    size_t i = 0;
+    while(isspace(asmblr->buf_input[i])) {
+        i++;
+    }
+
+    asmblr->cmds[0].cmd = asmblr->buf_input + i;
     asmblr->cmds[0].label = VALUE_DEFAULT;
     asmblr->cmds[0].cmd_code = CMD_DEFAULT;
     int j = 1;
 
-    for(size_t i = 0; i < asmblr->size_file; i++) {
+    for(i = 0; i < asmblr->size_file; i++) {
 
         if(asmblr->buf_input[i] == '\n') {
 
@@ -248,12 +253,18 @@ int CommandsParcing(Assembler* asmblr) {
             }
             else if(!strncmp(cmd, "call", 4)) {
                 char* argc = &(asmblr->cmds[i].cmd[5]);
-                asmblr->cmds[i].cmd_code = CALL;
+                asmblr->cmds[i].cmd_code = CMD_CALL;
                 CHECKED_ ArgumentsParcing(asmblr, i, argc);
                 buff_indx++;
             }
             else if(!strcmp(cmd, "ret")) {
-                asmblr->cmds[i].cmd_code = RET;
+                asmblr->cmds[i].cmd_code = CMD_RET;
+            }
+            else if(!strcmp(cmd, "cout")) {
+                asmblr->cmds[i].cmd_code = CMD_COUT;
+            }
+            else if(!strcmp(cmd, "draw")) {
+                asmblr->cmds[i].cmd_code = CMD_DRAW;
             }
             else if(strchr(cmd, ':') != NULL) {
                 CHECKED_ LabelInsert(cmd, asmblr, &buff_indx);
@@ -466,7 +477,7 @@ void AsmDump(Assembler* asmblr) {
 
     if(debug != NULL) {
 
-        my_strerr(code_error, debug);
+        my_strerr(debug);
 
         if(code_error) {
             fprintf(stderr, "code error %d\n", code_error);

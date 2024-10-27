@@ -6,7 +6,7 @@ static const char* errors_names[] = {"NO_ERROR",
                                      "STACK_UNDERFLOW",
                                      "NO_STACK",
                                      "FILE_ERROR",
-                                     "READ_ERR",
+                                     "READ_ERROR",
                                      "BAD_CAPACITY",
                                      "NO_DATA",
                                      "BAD_DATA_RIGHT_CANARY",
@@ -19,7 +19,7 @@ static const char* errors_names[] = {"NO_ERROR",
                                      "BAD_DATA_CANARIES",
                                      "BAD_STACK_CANARIES"};
 
-void my_strerr(int code_error, FILE* stream) {
+void my_strerr(FILE* stream) {
     for (int i = 0; i < N_ERROR; i++)
     {
         if (code_error & (1 << i))

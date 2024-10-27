@@ -114,7 +114,7 @@ void StackDump(Stack_t* stk, const char* file, const char* func, int line) {
         fprintf(debug_file, "------------------------------------\n");
         fprintf(debug_file, "called from %s: %d (%s)\n", file, line, func);
 
-        my_strerr(code_error, debug_file);
+        my_strerr(debug_file);
 
         if(code_error) {
             fprintf(stderr, "code error %d\n", code_error);

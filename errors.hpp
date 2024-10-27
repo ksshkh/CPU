@@ -12,7 +12,7 @@ enum Errors {
     STACK_UNDERFLOW = 1 << 3,
     NO_STACK = 1 << 4,
     FILE_ERROR = 1 << 5,
-    READ_ERR = 1 << 6,
+    READ_ERROR = 1 << 6,
     BAD_CAPACITY = 1 << 7,
     NO_DATA = 1 << 8,
     BAD_DATA_RIGHT_CANARY = 1 << 9,
@@ -39,6 +39,6 @@ enum Errors {
 
 static int code_error = 0;
 
-void my_strerr(int code_error, FILE* stream);
+void my_strerr(FILE* stream);
 
 #endif // ERRORS_HPP

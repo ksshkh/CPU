@@ -26,6 +26,8 @@ $(EXECUTABLE): $(OBJECTS)
 .PHONY: clean
 clean:
 	rm -rf *.o
+	rm -rf ../*.o
+	rm -rf ../*/*.o
 	rm -rf *.bin
 	rm -rf proc
 	rm -rf ../debug/processor_dump.txt

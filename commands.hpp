@@ -30,8 +30,12 @@ enum Commands_code {
     CMD_JNE,
     CMD_JMP,
 
-    CALL,
-    RET,
+    CMD_CALL,
+    CMD_RET,
+
+    CMD_DRAW,
+    CMD_COUT
+
 };
 
 enum Registers {

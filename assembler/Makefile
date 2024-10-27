@@ -26,6 +26,6 @@ $(EXECUTABLE): $(OBJECTS)
 .PHONY: clean
 clean:
 	rm -rf *.o
-	rm -rf *.bin
+	rm -rf ../programs/*.bin
 	rm -rf ../debug/assembler_dump.txt
 	rm -rf asm

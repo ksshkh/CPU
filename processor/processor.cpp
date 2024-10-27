@@ -13,7 +13,7 @@ int SPUCtor(SPU* spu) {
     spu->ram = (int*)calloc(RAM_SIZE, sizeof(int));
     MY_ASSERT(spu->ram != NULL, PTR_ERROR);
 
-    spu->file_name_input = "../assembler/result.bin";
+    spu->file_name_input = "../programs/result.bin";
 
     CHECKED_ CodeReader(spu);
 
@@ -237,14 +237,35 @@ int SPURun(SPU* spu) {
         else if(current_cmd == CMD_JMP) {
             spu->ip = spu->code[spu->ip + 1] - 1;
         }
-        else if(current_cmd == CALL) {
+        else if(current_cmd == CMD_CALL) {
             CHECKED_ StackPush(&(spu->func_stk), StackElem_t(spu->ip + 2));
             spu->ip = spu->code[spu->ip + 1] - 1;
         }
-        else if(current_cmd == RET) {
-            int ret_address = 0;
-            CHECKED_ StackPop(&(spu->func_stk), &ret_address);
-            spu->ip = ret_address - 1;
+        else if(current_cmd == CMD_RET) {
+            if(spu->func_stk.position != 0) {
+                int ret_address = 0;
+                CHECKED_ StackPop(&(spu->func_stk), &ret_address);
+                spu->ip = ret_address - 1;
+            }
+        }
+        else if(current_cmd == CMD_COUT) {
+            StackElem_t x = 0;
+            CHECKED_ StackPop(&(spu->stk), &x);
+            fprintf(stderr, "%c\n", x);
+        }
+        else if(current_cmd == CMD_DRAW) {
+            for(size_t i = 1; i <= RAM_SIZE; i++) {
+                if(spu->ram[i - 1] != 0) {
+                    fprintf(stderr, "*");
+                }
+                else {
+                    fprintf(stderr, " ");
+                }
+
+                if(i % ram_line == 0) {
+                    fprintf(stderr, "\n");
+                }
+            }
         }
 
         (spu->ip)++;
