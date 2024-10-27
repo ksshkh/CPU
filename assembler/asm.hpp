@@ -26,7 +26,7 @@ struct Command {
 
 struct Assembler {
     const char* file_name_input = NULL;
-    const char* file_name_print_txt = NULL;
+    const char* file_name_output = NULL;
 
     char* buf_input = NULL;
     int* buf_output = NULL;

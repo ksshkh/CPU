@@ -51,6 +51,8 @@ const int ARGC_MASK = 1 << 5;
 const int REG_MASK  = 1 << 6;
 const int MEM_MASK  = 1 << 7;
 
+const int CHECK_MASK = 31;
+
 const int VALUE_DEFAULT = -2;
 
 long int count_size_file(FILE* program);

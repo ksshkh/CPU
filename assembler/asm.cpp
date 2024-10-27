@@ -12,7 +12,7 @@ int AsmCtor(Assembler* asmblr, int argc, char* argv[]) {
         asmblr->file_name_input = argv[1];
     }
 
-    asmblr->file_name_print_txt = "../programs/result.bin";
+    asmblr->file_name_output = "../programs/result.bin";
 
     CHECKED_ ProgramInput(asmblr);
 
@@ -45,7 +45,7 @@ int ProgramInput(Assembler* asmblr) {
 
     fread(asmblr->buf_input, sizeof(char), asmblr->size_file, program);
 
-    MY_ASSERT(fclose(program) == 0,FILE_ERROR);
+    MY_ASSERT(fclose(program) == 0, FILE_ERROR);
 
     return code_error;
 }
@@ -113,7 +113,7 @@ int BufferParcing(Assembler* asmblr) {
     asmblr->cmds[0].cmd_code = CMD_DEFAULT;
     int j = 1;
 
-    for(i = 0; i < asmblr->size_file; i++) {
+    for(i; i < asmblr->size_file; i++) {
 
         if(asmblr->buf_input[i] == '\n') {
 
@@ -407,7 +407,7 @@ int Output(Assembler* asmblr) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
-    FILE* result = fopen(asmblr->file_name_print_txt, "w + b");
+    FILE* result = fopen(asmblr->file_name_output, "w + b");
     MY_ASSERT(result != NULL, FILE_ERROR);
 
     fwrite(asmblr->buf_output, sizeof(int), asmblr->n_words, result);
@@ -540,7 +540,7 @@ int AsmDtor(Assembler* asmblr) {
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
     asmblr->file_name_input = NULL;
-    asmblr->file_name_print_txt = NULL;
+    asmblr->file_name_output = NULL;
 
     free(asmblr->buf_input);
     asmblr->buf_input = NULL;

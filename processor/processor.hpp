@@ -14,8 +14,6 @@ const size_t REG_SIZE = 4;
 const size_t RAM_SIZE = 49;
 const size_t ram_line = (size_t)(sqrt(RAM_SIZE));
 
-const int CHECK_MASK = 31;
-
 struct SPU {
     const char* file_name_input = NULL;
 

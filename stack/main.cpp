@@ -3,7 +3,6 @@
 int main(void) {
 
     Stack_t stk = {};
-    // int err = NO_ERROR;
     StackElem_t x = 0;
 
     CHECKED_ STACK_CTOR(&stk, 5);
