@@ -1,0 +1,93 @@
+in
+in
+in
+pop cx
+pop bx
+pop ax
+
+push 0
+push ax
+je linear:
+
+push bx
+push bx
+mul
+push 4
+push ax
+push cx
+mul
+mul
+sub
+pop dx
+
+push dx
+push 0
+jb noroots:
+
+push 0
+push bx
+sub
+push dx
+sqrt
+add
+push 2
+push ax
+mul
+div
+
+push dx
+push 0
+je singleroot:
+
+push 2
+out
+out
+
+push 0
+push bx
+sub
+push dx
+sqrt
+sub
+push 2
+push ax
+mul
+div
+out
+
+hlt
+
+linear:
+
+    push 0
+    push cx
+    je infroots:
+
+    push 0
+    push bx
+    je noroots:
+
+    push 0
+    push cx
+    sub
+    push bx
+    div
+
+singleroot:
+
+    push 1
+    out
+    out
+    hlt
+
+noroots:
+
+    push 0
+    out
+    hlt
+
+infroots:
+
+    push 3
+    out
+    hlt

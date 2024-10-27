@@ -1,0 +1,37 @@
+push 0
+pop ax
+push 16
+pop bx
+
+begin:
+push 1
+
+push 1
+push ax
+add
+pop ax
+
+push ax
+push bx
+jb begin:
+
+pop [2]
+pop [3]
+pop [4]
+pop [8]
+pop [12]
+pop [14]
+pop [20]
+pop [21]
+pop [27]
+pop [28]
+pop [34]
+pop [36]
+pop [40]
+pop [44]
+pop [45]
+pop [46]
+
+draw
+
+hlt
