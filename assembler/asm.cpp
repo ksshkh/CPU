@@ -140,7 +140,7 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
 
     for(int twice_comp = 0; twice_comp < 2; twice_comp++) {
 
-        int buff_indx = 0;
+        int ip = 0;
 
         for(size_t i = 0; i < asmblr->n_cmd; i++) {
 
@@ -250,7 +250,7 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
             else if(strchr(cmd, ':') != NULL) {
                 char* doubledot = strchr(cmd, ':');
                 *doubledot = '\0';
-                LABEL_INSERT(cmd, asmblr, &buff_indx);
+                LABEL_INSERT(cmd, asmblr, &ip);
                 *doubledot = ':';
             }
             else {
@@ -258,7 +258,7 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
                 continue;
             }
 
-            BUFFER_FILLING(asmblr->cmds[i], asmblr->buf_output, &buff_indx);
+            BUFFER_FILLING(asmblr->cmds[i], asmblr->buf_output, &ip);
         }
     }
 
@@ -363,42 +363,42 @@ void ArgumentsHandling(Assembler* asmblr, size_t i, char* argc, int* code_error)
 
 }
 
-void BufferFilling(const Command command_struct, int* buf_output, int* buff_indx, int* code_error) {
+void BufferFilling(const Command command_struct, int* buf_output, int* ip, int* code_error) {
 
     MY_ASSERT(buf_output != NULL, PTR_ERROR);
-    MY_ASSERT(buff_indx != NULL, PTR_ERROR);
+    MY_ASSERT(ip != NULL, PTR_ERROR);
 
     if(command_struct.cmd_code == CMD_DEFAULT) {
-        (*buff_indx)++;
+        (*ip)++;
         return;
     }
 
-    buf_output[(*buff_indx)++] = command_struct.cmd_code;
+    buf_output[(*ip)++] = command_struct.cmd_code;
 
     if(command_struct.label != VALUE_DEFAULT) {
-        buf_output[(*buff_indx)++] = command_struct.label;
+        buf_output[(*ip)++] = command_struct.label;
         return;
     }
 
     if((command_struct.cmd_code & REG_MASK) && command_struct.cmd_code != CMD_HLT) {
-        buf_output[(*buff_indx)++] = command_struct.reg;
+        buf_output[(*ip)++] = command_struct.reg;
     }
 
     if((command_struct.cmd_code & ARGC_MASK) && command_struct.cmd_code != CMD_HLT) {
-        buf_output[(*buff_indx)++] = command_struct.argc;
+        buf_output[(*ip)++] = command_struct.argc;
     }
-    
+
     if(*(command_struct.cmd) == 'j' || !strncmp(command_struct.cmd, "call", 4)) {
-        buf_output[(*buff_indx)++] = command_struct.label;
+        buf_output[(*ip)++] = command_struct.label;
     }
 
 }
 
-void LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx, int* code_error) {
+void LabelInsert(char* cmd, Assembler* asmblr, int* ip, int* code_error) {
 
     MY_ASSERT(asmblr    != NULL, PTR_ERROR);
     MY_ASSERT(cmd       != NULL, PTR_ERROR);
-    MY_ASSERT(buff_indx != NULL, PTR_ERROR);
+    MY_ASSERT(ip != NULL, PTR_ERROR);
 
     size_t i = 0;
     while(i < NUM_OF_LABELS) {
@@ -415,9 +415,9 @@ void LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx, int* code_error) 
         i++;
     }
 
-    asmblr->lbls[i].address = *buff_indx;
+    asmblr->lbls[i].address = *ip;
     asmblr->lbls[i].name = cmd;
-    *(buff_indx) -= 1;
+    *(ip) -= 1;
 
 }
 
