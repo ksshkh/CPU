@@ -15,9 +15,9 @@ factorial:
 
     push ax
     push 1
-    je end:
+    je end
 
-    call factorial:
+    call factorial
 
 end:
 

@@ -13,7 +13,7 @@ pop ax
 
 push ax
 push bx
-jb begin:
+jb begin
 
 pop [2]
 pop [3]

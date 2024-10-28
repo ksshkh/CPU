@@ -7,7 +7,7 @@ pop ax
 
 push 0
 push ax
-je linear:
+je linear
 
 push bx
 push bx
@@ -22,7 +22,7 @@ pop dx
 
 push dx
 push 0
-jb noroots:
+jb noroots
 
 push 0
 push bx
@@ -37,7 +37,7 @@ div
 
 push dx
 push 0
-je singleroot:
+je singleroot
 
 push 2
 out
@@ -61,11 +61,11 @@ linear:
 
     push 0
     push cx
-    je infroots:
+    je infroots
 
     push 0
     push bx
-    je noroots:
+    je noroots
 
     push 0
     push cx

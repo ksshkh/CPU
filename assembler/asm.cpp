@@ -88,7 +88,7 @@ int ElemetsCounter(Assembler* asmblr) {
         }
     }
 
-    counter_words = counter_words - (counter_labels / 2) + 1;
+    counter_words = counter_words - counter_labels + 1;
 
     asmblr->n_words = counter_words;
     asmblr->n_cmd = counter_cmds + 1;
@@ -267,7 +267,10 @@ int CommandsParcing(Assembler* asmblr) {
                 asmblr->cmds[i].cmd_code = CMD_DRAW;
             }
             else if(strchr(cmd, ':') != NULL) {
+                char* doubledot = strchr(cmd, ':');
+                *doubledot = '\0';
                 CHECKED_ LabelInsert(cmd, asmblr, &buff_indx);
+                *doubledot = ':';
             }
             else {
                 fprintf(stderr, "SNTXERR: '%s'\n", cmd);
@@ -285,18 +288,6 @@ int ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
 
     char* close_sym = NULL;
     char* space_sym = NULL;
-
-    if(strchr(argc, ':') != NULL) {
-        int addr = LabelFind(argc, asmblr);
-
-        if(addr != VALUE_DEFAULT) {
-            asmblr->cmds[i].label = addr;
-        }
-        else {
-            CHECKED_ LabelInsert(argc, asmblr, &addr);
-        }
-        return code_error;
-    }
 
     if(strlen(argc - 4) == 3) { //just pop
         return code_error;
@@ -327,6 +318,23 @@ int ArgumentsParcing(Assembler* asmblr, size_t i, char* argc) {
         CHECKED_ ArgumentsHandling(asmblr, i, arg);
 
         *space_sym = ' ';
+    }
+    else if(*(argc - 3) == 'j' || *(argc - 4) == 'j' || *(argc - 2) == 'l') {
+        if(!isdigit(*argc)) {
+            size_t label_len = strlen(argc);
+            int addr = LabelFind(argc, asmblr, label_len);
+
+            if(addr != VALUE_DEFAULT) {
+                asmblr->cmds[i].label = addr;
+            }
+            else {
+                CHECKED_ LabelInsert(argc, asmblr, &addr);
+            }
+        }
+        else {
+            CHECKED_ ArgumentsHandling(asmblr, i, argc);
+        }
+
     }
     else {
         CHECKED_ ArgumentsHandling(asmblr, i, argc);
@@ -427,7 +435,7 @@ int LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx) {
     while(i < NUM_OF_LABELS) {
 
         if(asmblr->lbls[i].name != NULL) {
-            if(strcmp(cmd, asmblr->lbls[i].name) == 0) {
+            if(!strcmp(cmd, asmblr->lbls[i].name)) {
                 break;
             }
         }
@@ -445,7 +453,7 @@ int LabelInsert(char* cmd, Assembler* asmblr, int* buff_indx) {
     return code_error;
 }
 
-int LabelFind(char* cmd, Assembler* asmblr) {
+int LabelFind(char* cmd, Assembler* asmblr, size_t label_len) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
     MY_ASSERT(cmd != NULL, PTR_ERROR);
@@ -455,7 +463,7 @@ int LabelFind(char* cmd, Assembler* asmblr) {
     while(i < NUM_OF_LABELS) {
 
         if(asmblr->lbls[i].name != NULL) {
-            if(!strcmp(cmd, asmblr->lbls[i].name)) {
+            if(!strncmp(cmd, asmblr->lbls[i].name, label_len)) {
                 break;
             }
         }

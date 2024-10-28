@@ -61,7 +61,7 @@ int Output(Assembler* asmblr);
 
 int LabelInsert(char* cmd, Assembler* asmblr, int* j);
 
-int LabelFind(char* cmd, Assembler* asmblr);
+int LabelFind(char* cmd, Assembler* asmblr, size_t label_len);
 
 void AsmDump(Assembler* asmblr);
 
