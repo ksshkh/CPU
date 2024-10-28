@@ -47,6 +47,8 @@ void SPURun(SPU* spu, int* code_error) {
 
     while(spu->ip < spu->code_size) {
 
+        SPU_DUMP(spu);
+
         int current_cmd = spu->code[spu->ip];
 
         if(current_cmd == CMD_HLT) {
@@ -56,36 +58,37 @@ void SPURun(SPU* spu, int* code_error) {
             STACK_DUMP(&(spu->stk));
         }
         else if((current_cmd & CHECK_MASK) == CMD_PUSH) {
-            (spu->ip)++;
+            StackElem_t* ptr = NULL;
+            size_t save_ip = spu->ip + 2;
+            StackElem_t save_arg = spu->code[save_ip];
 
-            int argument = 0;
-            GET_ARGUMENT(spu, current_cmd, &argument);
+            ptr = GET_ARGUMENT(spu, current_cmd);
 
-            if(current_cmd & MEM_MASK) {
-                STACK_PUSH(&(spu->stk), spu->ram[argument]);
-            }
-            else {
-                STACK_PUSH(&(spu->stk), argument);
+            MY_ASSERT(ptr != NULL, PTR_ERROR);
+
+            STACK_PUSH(&(spu->stk), *ptr);
+
+            if(save_ip == spu->ip) {
+                spu->code[save_ip] = save_arg;
             }
         }
         else if((current_cmd & CHECK_MASK) == CMD_POP) {
+            StackElem_t* ptr = NULL;
+            size_t save_ip = spu->ip + 2;
+            StackElem_t save_arg = spu->code[save_ip];
 
-            if(current_cmd == CMD_POP) {
+            ptr = GET_ARGUMENT(spu, current_cmd);
+
+            if(ptr != NULL) {
+                STACK_POP(&(spu->stk), ptr);
+            }
+            else {
                 int pop_elem = 0;
                 STACK_POP(&(spu->stk), &pop_elem);
-                (spu->ip)++;
-                continue;
             }
 
-            (spu->ip)++;
-            int argument = 0;
-            GET_ARGUMENT(spu, current_cmd, &argument);
-
-            if(current_cmd & MEM_MASK) {
-                STACK_POP(&(spu->stk), &(spu->ram[argument]));
-            }
-            else if(current_cmd & REG_MASK) {
-                STACK_POP(&(spu->stk), &(spu->registers[argument]));
+            if(save_ip == spu->ip) {
+                spu->code[save_ip] = save_arg;
             }
         }
         else if(current_cmd == CMD_OUT) {
@@ -256,18 +259,7 @@ void SPURun(SPU* spu, int* code_error) {
             StackElem_t line = 0;
             STACK_POP(&(spu->stk), &line);
 
-            for(size_t i = 1; i <= (line * line); i++) {                // function
-                if(spu->ram[i - 1] != 0) {
-                    fprintf(stderr, "*");
-                }
-                else {
-                    fprintf(stderr, " ");
-                }
-
-                if(i % line == 0) {
-                    fprintf(stderr, "\n");
-                }
-            }
+            DRAW(spu, line);
         }
 
         (spu->ip)++;
@@ -275,49 +267,59 @@ void SPURun(SPU* spu, int* code_error) {
 
 }
 
-void GetArgument(SPU* spu, int current_cmd, int* argument, int* code_error) {
+StackElem_t* GetArgument(SPU* spu, int current_cmd, int* code_error) {
 
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
-    /*if (Reg && ARGC && RAM)
-    {
-
+    if ((current_cmd & REG_MASK) && (current_cmd & ARGC_MASK) && (current_cmd & MEM_MASK)) {
+        StackElem_t arg = 0;
+        spu->ip++;
+        arg += spu->registers[spu->code[spu->ip] - 1];
+        spu->ip++;
+        spu->code[spu->ip] += arg;
+        return &spu->ram[spu->code[spu->ip]];
     }
-    else if (RAM && REG)
-    {
-
+    else if ((current_cmd & MEM_MASK) && (current_cmd & REG_MASK)) {
+        return &spu->ram[spu->registers[spu->code[++(spu->ip)] - 1]];
     }
-    else if (RAM)
-    {
-
+    else if ((current_cmd & MEM_MASK) && (current_cmd & ARGC_MASK)) {
+        return &spu->ram[spu->code[++(spu->ip)]];
     }
-    else if (REG)
-    {
-
-    }
-    else
-    {
-
-    }*/
-    if((current_cmd & REG_MASK) && (current_cmd & ARGC_MASK)) {
-        int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
-        (spu->ip)++;
-        int temp_arg_argc = spu->code[spu->ip];
-        *argument = temp_arg_reg + temp_arg_argc;
+    else if ((current_cmd & REG_MASK) && (current_cmd & ARGC_MASK)) {
+        StackElem_t arg = 0;
+        spu->ip++;
+        arg += spu->registers[spu->code[spu->ip] - 1];
+        spu->ip++;
+        spu->code[spu->ip] += arg;
+        return &spu->code[spu->ip];
     }
     else if(current_cmd & REG_MASK) {
-        if((current_cmd & CHECK_MASK) == CMD_POP && !(current_cmd & MEM_MASK)) {
-            *argument = spu->code[spu->ip] - 1;
-            return;
-        }
-
-        int temp_arg = spu->registers[spu->code[spu->ip] - 1];
-        *argument = temp_arg;
+        return &spu->registers[spu->code[++(spu->ip)] - 1];
     }
     else if(current_cmd & ARGC_MASK) {
-        *argument = spu->code[spu->ip];
+        return &spu->code[++(spu->ip)];
     }
 
+    return NULL;
+}
+
+void Draw(SPU* spu, StackElem_t line, int* code_error) {
+
+    MY_ASSERT(spu != NULL, PTR_ERROR);
+
+    for(size_t i = 1; i <= (line * line); i++) {
+
+        if(spu->ram[i - 1] != 0) {
+            fprintf(stderr, "*");
+        }
+        else {
+            fprintf(stderr, " ");
+        }
+
+        if(i % line == 0) {
+            fprintf(stderr, "\n");
+        }
+    }
 }
 
 void SPUDump(SPU* spu, int* code_error) {

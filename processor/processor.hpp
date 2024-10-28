@@ -11,8 +11,8 @@
 
 const size_t InitCapacity = 5;
 const size_t REG_SIZE = 4;
-const size_t RAM_SIZE = 10000;
-const size_t ram_line = 10;
+const size_t RAM_SIZE = 49;
+const size_t ram_line = 7;
 
 struct SPU {
     const char* file_name_input = NULL;
@@ -26,7 +26,7 @@ struct SPU {
     Stack_t func_stk = {};
 
     int* registers = NULL;
-    int* ram = NULL;
+    StackElem_t* ram = NULL;
 };
 
 #define SPU_CTOR(spu) SPUCtor((spu), (code_error))
@@ -35,7 +35,9 @@ struct SPU {
 
 #define SPU_RUN(spu) SPURun((spu), (code_error))
 
-#define GET_ARGUMENT(spu, current_cmd, argument) GetArgument((spu), (current_cmd), (argument), (code_error))
+#define GET_ARGUMENT(spu, current_cmd) GetArgument((spu), (current_cmd), (code_error))
+
+#define DRAW(spu, line) Draw((spu), (line), (code_error))
 
 #define SPU_DUMP(spu) SPUDump((spu), (code_error))
 
@@ -47,7 +49,9 @@ void CodeReader(SPU* spu, int* code_error);
 
 void SPURun(SPU* spu, int* code_error);
 
-void GetArgument(SPU* spu, int current_cmd, int* argument, int* code_error);
+StackElem_t* GetArgument(SPU* spu, int current_cmd, int* code_error);
+
+void Draw(SPU* spu, StackElem_t line, int* code_error);
 
 void SPUDump(SPU* spu, int* code_error);
 
