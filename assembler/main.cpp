@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
     ASM_CTOR(&asmblr);
     BUFFER_PARCING(&asmblr);
     COMMANDS_PARCING(&asmblr);
-    BUFFER_FILLING(&asmblr);
+    ASM_DUMP(&asmblr);
     OUTPUT(&asmblr);
     ASM_DUMP(&asmblr);
 

@@ -1,5 +1,7 @@
 #include "asm.hpp"
 
+static const char* DEBUG_FILE_NAME = "../debug/assembler_dump.txt";
+
 void AsmCtor(Assembler* asmblr, int argc, char* argv[], int* code_error) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
@@ -140,7 +142,7 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
 
         int buff_indx = 0;
 
-        for(size_t i = 0; i < asmblr->n_cmd; i++, buff_indx++) {
+        for(size_t i = 0; i < asmblr->n_cmd; i++) {
 
             char* cmd = asmblr->cmds[i].cmd;
 
@@ -161,21 +163,12 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
 
                 asmblr->cmds[i].cmd_code = CMD_PUSH;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
-
-                if((asmblr->cmds[i].cmd_code & ARGC_MASK) && (asmblr->cmds[i].cmd_code & REG_MASK)) {
-                    buff_indx++;
-                }
             }
             else if(!strncmp(cmd, "pop", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_POP;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-
-                if((asmblr->cmds[i].cmd_code & ARGC_MASK) || (asmblr->cmds[i].cmd_code & REG_MASK)) {
-                    buff_indx++;
-                }
             }
             else if(!strcmp(cmd, "add")) {
                 asmblr->cmds[i].cmd_code = CMD_ADD;
@@ -203,55 +196,47 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
 
                 asmblr->cmds[i].cmd_code = CMD_JAE;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "ja", 2)) {
                 char* argc = &(asmblr->cmds[i].cmd[3]);
 
                 asmblr->cmds[i].cmd_code = CMD_JA;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "jbe", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JBE;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "jb", 2)) {
                 char* argc = &(asmblr->cmds[i].cmd[3]);
 
                 asmblr->cmds[i].cmd_code = CMD_JB;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "je", 2)) {
                 char* argc = &(asmblr->cmds[i].cmd[3]);
 
                 asmblr->cmds[i].cmd_code = CMD_JE;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "jne", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JNE;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "jmp", 3)) {
                 char* argc = &(asmblr->cmds[i].cmd[4]);
 
                 asmblr->cmds[i].cmd_code = CMD_JMP;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strncmp(cmd, "call", 4)) {
                 char* argc = &(asmblr->cmds[i].cmd[5]);
                 asmblr->cmds[i].cmd_code = CMD_CALL;
                 ARGUMENTS_PARCING(asmblr, i, argc);
-                buff_indx++;
             }
             else if(!strcmp(cmd, "ret")) {
                 asmblr->cmds[i].cmd_code = CMD_RET;
@@ -270,7 +255,10 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
             }
             else {
                 fprintf(stderr, "SNTXERR: '%s'\n", cmd);
+                continue;
             }
+
+            BUFFER_FILLING(asmblr->cmds[i], asmblr->buf_output, &buff_indx);
         }
     }
 
@@ -375,30 +363,33 @@ void ArgumentsHandling(Assembler* asmblr, size_t i, char* argc, int* code_error)
 
 }
 
-void BufferFilling(Assembler* asmblr, int* code_error) {
+void BufferFilling(const Command command_struct, int* buf_output, int* buff_indx, int* code_error) {
 
-    MY_ASSERT(asmblr != NULL, PTR_ERROR);
+    MY_ASSERT(buf_output != NULL, PTR_ERROR);
+    MY_ASSERT(buff_indx != NULL, PTR_ERROR);
 
-    int buff_indx = 0;
-    for(size_t i = 0; i < asmblr->n_cmd; i++) {
+    if(command_struct.cmd_code == CMD_DEFAULT) {
+        (*buff_indx)++;
+        return;
+    }
 
-        if(asmblr->cmds[i].cmd_code == CMD_DEFAULT) {
-            continue;
-        }
+    buf_output[(*buff_indx)++] = command_struct.cmd_code;
 
-        asmblr->buf_output[buff_indx++] = asmblr->cmds[i].cmd_code;
+    if(command_struct.label != VALUE_DEFAULT) {
+        buf_output[(*buff_indx)++] = command_struct.label;
+        return;
+    }
 
-        if(asmblr->cmds[i].label != VALUE_DEFAULT) {
-            asmblr->buf_output[buff_indx++] = asmblr->cmds[i].label;
-        }
+    if((command_struct.cmd_code & REG_MASK) && command_struct.cmd_code != CMD_HLT) {
+        buf_output[(*buff_indx)++] = command_struct.reg;
+    }
 
-        if((asmblr->cmds[i].cmd_code & REG_MASK) && asmblr->cmds[i].cmd_code != CMD_HLT) {
-            asmblr->buf_output[buff_indx++] = asmblr->cmds[i].reg;
-        }
-
-        if((asmblr->cmds[i].cmd_code & ARGC_MASK) && asmblr->cmds[i].cmd_code != CMD_HLT) {
-            asmblr->buf_output[buff_indx++] = asmblr->cmds[i].argc;
-        }
+    if((command_struct.cmd_code & ARGC_MASK) && command_struct.cmd_code != CMD_HLT) {
+        buf_output[(*buff_indx)++] = command_struct.argc;
+    }
+    
+    if(*(command_struct.cmd) == 'j' || !strncmp(command_struct.cmd, "call", 4)) {
+        buf_output[(*buff_indx)++] = command_struct.label;
     }
 
 }
@@ -471,7 +462,7 @@ int LabelFind(char* cmd, Assembler* asmblr, size_t label_len, int* code_error) {
 
 void AsmDump(Assembler* asmblr, int* code_error) {
 
-    FILE* debug = fopen("../debug/assembler_dump.txt", "a");
+    FILE* debug = fopen(DEBUG_FILE_NAME, "a");
 
     if(debug != NULL) {
 

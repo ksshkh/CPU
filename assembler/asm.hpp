@@ -51,7 +51,7 @@ const int NUM_OF_LABELS = 20;
 
 #define BUFFER_PARCING(asmblr) BufferParcing((asmblr), (code_error))
 
-#define BUFFER_FILLING(asmblr) BufferFilling((asmblr), (code_error))
+#define BUFFER_FILLING(command_struct, buf_output, buff_indx) BufferFilling((command_struct), (buf_output), (buff_indx), (code_error))
 
 #define ARGUMENTS_PARCING(asmblr, i, argc) ArgumentsParcing((asmblr), (i), (argc), (code_error))
 
@@ -77,7 +77,7 @@ void CommandsParcing(Assembler* asmblr, int* code_error);
 
 void BufferParcing(Assembler* asmblr, int* code_error);
 
-void BufferFilling(Assembler* asmblr, int* code_error);
+void BufferFilling(const Command command_struct, int* buf_output, int* buff_indx, int* code_error);
 
 void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc, int* code_error);
 
