@@ -1,11 +1,13 @@
 #include "processor.hpp"
 
-int SPUCtor(SPU* spu) {
+static const char* DEBUG_FILE_NAME = "../debug/processor_dump.txt";
+
+void SPUCtor(SPU* spu, int* code_error) {
 
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
-    CHECKED_ STACK_CTOR(&spu->stk, InitCapacity);
-    CHECKED_ STACK_CTOR(&spu->func_stk, InitCapacity);
+    STACK_CTOR(&spu->stk, InitCapacity);
+    STACK_CTOR(&spu->func_stk, InitCapacity);
 
     spu->registers = (int*)calloc(REG_SIZE, sizeof(int));
     MY_ASSERT(spu->registers != NULL, PTR_ERROR);
@@ -15,19 +17,18 @@ int SPUCtor(SPU* spu) {
 
     spu->file_name_input = "../programs/result.bin";
 
-    CHECKED_ CodeReader(spu);
+    CODE_READER(spu);
 
-    return code_error;
 }
 
-int CodeReader(SPU* spu) {
+void CodeReader(SPU* spu, int* code_error) {
 
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
     FILE* program = fopen(spu->file_name_input, "rb");
     MY_ASSERT(program != NULL, FILE_ERROR);
 
-    spu->code_size = count_size_file(program) / sizeof(int);
+    spu->code_size = COUNT_SIZE_FILE(program) / sizeof(int);
 
     spu->code = (int*)calloc(spu->code_size, sizeof(int));
     MY_ASSERT(spu->code != NULL, PTR_ERROR);
@@ -36,17 +37,15 @@ int CodeReader(SPU* spu) {
 
     MY_ASSERT(fclose(program) == 0,FILE_ERROR);
 
-    return code_error;
 }
 
-int SPURun(SPU* spu) {
+void SPURun(SPU* spu, int* code_error) {
 
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
     spu->ip = 0;
 
     while(spu->ip < spu->code_size) {
-        SPUDump(spu);
 
         int current_cmd = spu->code[spu->ip];
 
@@ -60,102 +59,102 @@ int SPURun(SPU* spu) {
             (spu->ip)++;
 
             int argument = 0;
-            CHECKED_ GetArgument(spu, current_cmd, &argument);
+            GET_ARGUMENT(spu, current_cmd, &argument);
 
             if(current_cmd & MEM_MASK) {
-                CHECKED_ StackPush(&(spu->stk), spu->ram[argument]);
+                STACK_PUSH(&(spu->stk), spu->ram[argument]);
             }
             else {
-                CHECKED_ StackPush(&(spu->stk), argument);
+                STACK_PUSH(&(spu->stk), argument);
             }
         }
         else if((current_cmd & CHECK_MASK) == CMD_POP) {
 
             if(current_cmd == CMD_POP) {
                 int pop_elem = 0;
-                CHECKED_ StackPop(&(spu->stk), &pop_elem);
+                STACK_POP(&(spu->stk), &pop_elem);
                 (spu->ip)++;
                 continue;
             }
 
             (spu->ip)++;
             int argument = 0;
-            CHECKED_ GetArgument(spu, current_cmd, &argument);
+            GET_ARGUMENT(spu, current_cmd, &argument);
 
             if(current_cmd & MEM_MASK) {
-                CHECKED_ StackPop(&(spu->stk), &(spu->ram[argument]));
+                STACK_POP(&(spu->stk), &(spu->ram[argument]));
             }
             else if(current_cmd & REG_MASK) {
-                CHECKED_ StackPop(&(spu->stk), &(spu->registers[argument]));
+                STACK_POP(&(spu->stk), &(spu->registers[argument]));
             }
         }
         else if(current_cmd == CMD_OUT) {
             StackElem_t x = 0;
-            CHECKED_ StackPop(&(spu->stk), &x);
+            STACK_POP(&(spu->stk), &x);
             fprintf(stderr, "%d\n", x);
         }
         else if(current_cmd == CMD_IN) {
             StackElem_t x = 0;
             fprintf(stderr, "enter a number to push pls\n");
             scanf("%d", &x);
-            CHECKED_ StackPush(&(spu->stk), x);
+            STACK_PUSH(&(spu->stk), x);
         }
         else if(current_cmd == CMD_ADD) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
-            CHECKED_ StackPush(&(spu->stk), x1 + x2);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
+            STACK_PUSH(&(spu->stk), x1 + x2);
         }
         else if(current_cmd == CMD_SUB) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
-            CHECKED_ StackPush(&(spu->stk), x1 - x2);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
+            STACK_PUSH(&(spu->stk), x1 - x2);
         }
         else if(current_cmd == CMD_MUL) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
-            CHECKED_ StackPush(&(spu->stk), x1 * x2);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
+            STACK_PUSH(&(spu->stk), x1 * x2);
         }
         else if(current_cmd == CMD_DIV) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
-            CHECKED_ StackPush(&(spu->stk), x1 / x2);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
+            STACK_PUSH(&(spu->stk), x1 / x2);
         }
         else if(current_cmd == CMD_SQRT) {
             StackElem_t x = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x);
-            CHECKED_ StackPush(&(spu->stk), (StackElem_t)sqrt(x));
+            STACK_POP(&(spu->stk), &x);
+            STACK_PUSH(&(spu->stk), (StackElem_t)sqrt(x));
         }
         else if(current_cmd == CMD_COS) {
             StackElem_t x = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x);
-            CHECKED_ StackPush(&(spu->stk), (StackElem_t)cos(x));
+            STACK_POP(&(spu->stk), &x);
+            STACK_PUSH(&(spu->stk), (StackElem_t)cos(x));
         }
         else if(current_cmd == CMD_SIN) {
             StackElem_t x = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x);
-            CHECKED_ StackPush(&(spu->stk), (StackElem_t)sin(x));
+            STACK_POP(&(spu->stk), &x);
+            STACK_PUSH(&(spu->stk), (StackElem_t)sin(x));
         }
         else if(current_cmd == CMD_JA) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
 
             if(x1 > x2) {
                 spu->ip = spu->code[spu->ip + 1] - 1;
@@ -168,8 +167,8 @@ int SPURun(SPU* spu) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
 
             if(x1 >= x2) {
                 spu->ip = spu->code[spu->ip + 1] - 1;
@@ -182,8 +181,8 @@ int SPURun(SPU* spu) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
 
             if(x1 < x2) {
                 spu->ip = spu->code[spu->ip + 1] - 1;
@@ -196,8 +195,8 @@ int SPURun(SPU* spu) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
 
             if(x1 <= x2) {
                 spu->ip = spu->code[spu->ip + 1] - 1;
@@ -210,8 +209,8 @@ int SPURun(SPU* spu) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
 
             if(x1 == x2) {
                 spu->ip = spu->code[spu->ip + 1] - 1;
@@ -224,8 +223,8 @@ int SPURun(SPU* spu) {
             StackElem_t x1 = 0;
             StackElem_t x2 = 0;
 
-            CHECKED_ StackPop(&(spu->stk), &x2);
-            CHECKED_ StackPop(&(spu->stk), &x1);
+            STACK_POP(&(spu->stk), &x2);
+            STACK_POP(&(spu->stk), &x1);
 
             if(x1 != x2) {
                 spu->ip = spu->code[spu->ip + 1] - 1;
@@ -238,26 +237,26 @@ int SPURun(SPU* spu) {
             spu->ip = spu->code[spu->ip + 1] - 1;
         }
         else if(current_cmd == CMD_CALL) {
-            CHECKED_ StackPush(&(spu->func_stk), StackElem_t(spu->ip + 2));
+            STACK_PUSH(&(spu->func_stk), StackElem_t(spu->ip + 2));
             spu->ip = spu->code[spu->ip + 1] - 1;
         }
         else if(current_cmd == CMD_RET) {
             if(spu->func_stk.position != 0) {
                 int ret_address = 0;
-                CHECKED_ StackPop(&(spu->func_stk), &ret_address);
+                STACK_POP(&(spu->func_stk), &ret_address);
                 spu->ip = ret_address - 1;
             }
         }
         else if(current_cmd == CMD_COUT) {
             StackElem_t x = 0;
-            CHECKED_ StackPop(&(spu->stk), &x);
+            STACK_POP(&(spu->stk), &x);
             fprintf(stderr, "%c\n", x);
         }
         else if(current_cmd == CMD_DRAW) {
             StackElem_t line = 0;
-            CHECKED_ StackPop(&(spu->stk), &line);
+            STACK_POP(&(spu->stk), &line);
 
-            for(size_t i = 1; i <= (line * line); i++) {
+            for(size_t i = 1; i <= (line * line); i++) {                // function
                 if(spu->ram[i - 1] != 0) {
                     fprintf(stderr, "*");
                 }
@@ -274,13 +273,32 @@ int SPURun(SPU* spu) {
         (spu->ip)++;
     }
 
-    return code_error;
 }
 
-int GetArgument(SPU* spu, int current_cmd, int* argument) {
+void GetArgument(SPU* spu, int current_cmd, int* argument, int* code_error) {
 
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
+    /*if (Reg && ARGC && RAM)
+    {
+
+    }
+    else if (RAM && REG)
+    {
+
+    }
+    else if (RAM)
+    {
+
+    }
+    else if (REG)
+    {
+
+    }
+    else
+    {
+
+    }*/
     if((current_cmd & REG_MASK) && (current_cmd & ARGC_MASK)) {
         int temp_arg_reg = spu->registers[spu->code[spu->ip] - 1];
         (spu->ip)++;
@@ -290,7 +308,7 @@ int GetArgument(SPU* spu, int current_cmd, int* argument) {
     else if(current_cmd & REG_MASK) {
         if((current_cmd & CHECK_MASK) == CMD_POP && !(current_cmd & MEM_MASK)) {
             *argument = spu->code[spu->ip] - 1;
-            return code_error;
+            return;
         }
 
         int temp_arg = spu->registers[spu->code[spu->ip] - 1];
@@ -300,13 +318,16 @@ int GetArgument(SPU* spu, int current_cmd, int* argument) {
         *argument = spu->code[spu->ip];
     }
 
-    return code_error;
 }
 
-void SPUDump(SPU* spu) {
+void SPUDump(SPU* spu, int* code_error) {
 
-    FILE* debug = fopen("../debug/processor_dump.txt", "a");
+    FILE* debug = fopen(DEBUG_FILE_NAME, "a");
+
     if(debug != NULL) {
+        if(*code_error) {
+            fprintf(stderr, "code error %d\n", *code_error);
+        }
         if(spu != NULL) {
             fprintf(debug, "size of code: %ld\n", spu->code_size);
 
@@ -381,7 +402,7 @@ void SPUDump(SPU* spu) {
     }
 }
 
-int SpuDtor(SPU* spu) {
+void SPUDtor(SPU* spu, int* code_error) {
 
     MY_ASSERT(spu != NULL, PTR_ERROR);
 
@@ -398,8 +419,7 @@ int SpuDtor(SPU* spu) {
     spu->code_size = 0;
     spu->ip = 0;
 
-    CHECKED_ StackDtor(&(spu->stk));
-    CHECKED_ StackDtor(&(spu->func_stk));
+    STACK_DTOR(&(spu->stk));
+    STACK_DTOR(&(spu->func_stk));
 
-    return code_error;
 }

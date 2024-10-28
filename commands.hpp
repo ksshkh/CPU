@@ -55,6 +55,8 @@ const int CHECK_MASK = 31;
 
 const int VALUE_DEFAULT = -2;
 
-long int count_size_file(FILE* program);
+#define COUNT_SIZE_FILE(program) count_size_file((program), (code_error))
+
+long int count_size_file(FILE* program, int* code_error);
 
 #endif

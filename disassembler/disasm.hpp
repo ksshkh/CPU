@@ -20,14 +20,24 @@ struct Disassembler {
     size_t size_file = 0;
 };
 
-int DisasmCtor(Disassembler* disasmblr);
+#define DISASM_CTOR(disasmblr) DisasmCtor((disasmblr), (code_error))
 
-int DisasmRun(Disassembler* disasmblr);
+#define DISASM_RUN(disasmblr) DisasmRun((disasmblr), (code_error))
 
-int PrintArgument(int* buff, size_t* i, FILE* result);
+#define PRINT_ARGUMENT(buff, i, result) PrintArgument((buff), (i), (result), (code_error))
 
-int PrintRegs(int reg, FILE* result);
+#define PRINT_REGS(reg, result) PrintRegs((reg), (result), (code_error))
 
-int DisasmDtor(Disassembler* disasmblr);
+#define DISASM_DTOR(disasmblr) DisasmDtor((disasmblr), (code_error))
+
+void DisasmCtor(Disassembler* disasmblr, int* code_error);
+
+void DisasmRun(Disassembler* disasmblr, int* code_error);
+
+void PrintArgument(int* buff, size_t* i, FILE* result, int* code_error);
+
+void PrintRegs(int reg, FILE* result, int* code_error);
+
+void DisasmDtor(Disassembler* disasmblr, int* code_error);
 
 #endif // DISASM_HPP

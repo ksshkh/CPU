@@ -1,6 +1,6 @@
 #include "disasm.hpp"
 
-int DisasmCtor(Disassembler* disasmblr) {
+void DisasmCtor(Disassembler* disasmblr, int* code_error) {
 
     MY_ASSERT(disasmblr != NULL, PTR_ERROR);
 
@@ -10,7 +10,7 @@ int DisasmCtor(Disassembler* disasmblr) {
     FILE* program = fopen(disasmblr->file_name_input, "rb");
     MY_ASSERT(program != NULL, FILE_ERROR);
 
-    disasmblr->size_file = count_size_file(program) / sizeof(int);
+    disasmblr->size_file = COUNT_SIZE_FILE(program) / sizeof(int);
 
     disasmblr->buf_input = (int*)calloc(disasmblr->size_file, sizeof(int));
     MY_ASSERT(disasmblr->buf_input != NULL, PTR_ERROR);
@@ -19,10 +19,9 @@ int DisasmCtor(Disassembler* disasmblr) {
 
     MY_ASSERT(fclose(program) == 0, FILE_ERROR);
 
-    return code_error;
 }
 
-int DisasmRun(Disassembler* disasmblr) {
+void DisasmRun(Disassembler* disasmblr, int* code_error) {
 
     MY_ASSERT(disasmblr != NULL, PTR_ERROR);
 
@@ -42,12 +41,12 @@ int DisasmRun(Disassembler* disasmblr) {
 
             if(disasmblr->buf_input[i] & MEM_MASK) {
                 fprintf(result, "[");
-                CHECKED_ PrintArgument(disasmblr->buf_input, &i, result);
+                PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
                 fprintf(result, "]\n");
                 continue;
             }
 
-            CHECKED_ PrintArgument(disasmblr->buf_input, &i, result);
+            PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
             fprintf(result, "\n");
         }
         else if((disasmblr->buf_input[i] & CHECK_MASK) == CMD_POP) {
@@ -59,12 +58,12 @@ int DisasmRun(Disassembler* disasmblr) {
             fprintf(result, "pop ");
             if(disasmblr->buf_input[i] & MEM_MASK) {
                 fprintf(result, "[");
-                CHECKED_ PrintArgument(disasmblr->buf_input, &i, result);
+                PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
                 fprintf(result, "]\n");
                 continue;
             }
 
-            CHECKED_ PrintArgument(disasmblr->buf_input, &i, result);
+            PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
             fprintf(result, "\n");
         }
         else if(disasmblr->buf_input[i] == CMD_OUT) {
@@ -150,59 +149,56 @@ int DisasmRun(Disassembler* disasmblr) {
 
     MY_ASSERT(fclose(result) == 0, FILE_ERROR);
 
-    return code_error;
 }
 
-int PrintArgument(int* buff, size_t* i, FILE* result) {
+void PrintArgument(int* buff, size_t* i, FILE* result, int* code_error) {
 
     MY_ASSERT(result != NULL, FILE_ERROR);
     MY_ASSERT(buff != NULL, PTR_ERROR);
 
     if((buff[*i] & REG_MASK) && (buff[*i] & ARGC_MASK)) {
         (*i)++;
-        CHECKED_ PrintRegs(buff[*i], result);
+        PRINT_REGS(buff[*i], result);
         fprintf(result, " + ");
         (*i)++;
         fprintf(result, "%d", buff[*i]);
     }
     else if(buff[*i] & REG_MASK) {
         (*i)++;
-        CHECKED_ PrintRegs(buff[*i], result);
+        PRINT_REGS(buff[*i], result);
     }
     else if(buff[*i] & ARGC_MASK) {
         (*i)++;
         fprintf(result, "%d", buff[*i]);
     }
 
-    return code_error;
 }
 
-int PrintRegs(int reg, FILE* result) {
+void PrintRegs(int reg, FILE* result, int* code_error) {
 
     MY_ASSERT(result != NULL, FILE_ERROR);
 
     switch(reg) {
-    case AX:
-        fprintf(result, "ax");
-        break;
-    case BX:
-        fprintf(result, "bx");
-        break;
-    case CX:
-        fprintf(result, "cx");
-        break;
-    case DX:
-        fprintf(result, "dx");
-        break;
-    default:
-        fprintf(stderr, "SNTXERR(reg): '%d'\n", reg);
-        break;
+        case AX:
+            fprintf(result, "ax");
+            break;
+        case BX:
+            fprintf(result, "bx");
+            break;
+        case CX:
+            fprintf(result, "cx");
+            break;
+        case DX:
+            fprintf(result, "dx");
+            break;
+        default:
+            fprintf(stderr, "SNTXERR(reg): '%d'\n", reg);
+            break;
     }
 
-    return code_error;
 }
 
-int DisasmDtor(Disassembler* disasmblr) {
+void DisasmDtor(Disassembler* disasmblr, int* code_error) {
 
     MY_ASSERT(disasmblr != NULL, PTR_ERROR);
 
@@ -214,5 +210,4 @@ int DisasmDtor(Disassembler* disasmblr) {
 
     disasmblr->size_file = 0;
 
-    return code_error;
 }

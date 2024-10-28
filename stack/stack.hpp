@@ -8,7 +8,7 @@
 
 #include "../errors.hpp"
 
-// #define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
     #define ON_DEBUG(code) code
@@ -17,16 +17,25 @@
 #endif
 
 #define STACK_ASSERT(stk) {                                           \
-    int err = StackVerification(stk);                                 \
+    int err = STACK_VERIFICATION(stk);                                \
     if (err != NO_ERROR) {                                            \
         STACK_DUMP(stk);                                              \
-        return err;                                                   \
     }                                                                 \
 }
 
-#define STACK_CTOR(stk, initCapacity) StackCtor((stk), (initCapacity), __FILE__, __func__, __LINE__)
+#define STACK_CTOR(stk, initCapacity) StackCtor((stk), (initCapacity), __FILE__, __func__, __LINE__, (code_error))
 
-#define STACK_DUMP(stk) StackDump((stk), __FILE__, __func__, __LINE__)
+#define STACK_DTOR(stk) StackDtor((stk), (code_error))
+
+#define STACK_DUMP(stk) StackDump((stk), __FILE__, __func__, __LINE__, (code_error))
+
+#define STACK_PUSH(stk, el) StackPush((stk), (el), (code_error))
+
+#define STACK_POP(stk, x) StackPop((stk), (x), (code_error))
+
+#define STACK_VERIFICATION(stk) StackVerification((stk), (code_error))
+
+#define STACK_REALLOCATION(stk, id) StackReallocation((stk), (id), (code_error))
 
 typedef int StackElem_t;
 
@@ -64,19 +73,19 @@ struct Stack_t {
     ON_DEBUG(Canary_t right_canary = 0;)
 };
 
-int StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line);
+void StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line, int* code_error);
 
-int StackDtor(Stack_t* stk);
+void StackDtor(Stack_t* stk, int* code_error);
 
-int StackPush(Stack_t* stk, StackElem_t el);
+void StackPush(Stack_t* stk, StackElem_t el, int* code_error);
 
-int StackPop(Stack_t* stk, StackElem_t* x);
+void StackPop(Stack_t* stk, StackElem_t* x, int* code_error);
 
-void StackDump(Stack_t* stk, const char* file, const char* func, int line);
+void StackDump(Stack_t* stk, const char* file, const char* func, int line, int* code_error);
 
-int StackVerification(const Stack_t* stk);
+int StackVerification(const Stack_t* stk, int* code_error);
 
-int StackReallocation(Stack_t* stk, FunkId id);
+void StackReallocation(Stack_t* stk, FunkId id, int* code_error);
 
 void PoisonMaker(Stack_t* stk);
 

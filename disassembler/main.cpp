@@ -2,11 +2,14 @@
 
 int main(void) {
 
+    int* code_error = (int*)calloc(1, sizeof(int));
+    *code_error = 0;
+
     Disassembler disasmblr = {};
 
-    CHECKED_ DisasmCtor(&disasmblr);
-    CHECKED_ DisasmRun(&disasmblr);
-    CHECKED_ DisasmDtor(&disasmblr);
+    DISASM_CTOR(&disasmblr);
+    DISASM_RUN(&disasmblr);
+    DISASM_DTOR(&disasmblr);
 
     return 0;
 }

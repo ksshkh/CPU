@@ -2,15 +2,17 @@
 
 int main(int argc, char* argv[]) {
 
+    int* code_error = (int*)calloc(1, sizeof(int));
+    *code_error = 0;
+
     Assembler asmblr = {0};
-    
-    AsmCtor(&asmblr, argc, argv);
-    CHECKED_ BufferParcing(&asmblr);
-    CHECKED_ CommandsParcing(&asmblr);
-    CHECKED_ BufferFilling(&asmblr);
-    AsmDump(&asmblr);
-    CHECKED_ Output(&asmblr);
-    CHECKED_ AsmDtor(&asmblr);
+
+    ASM_CTOR(&asmblr);
+    BUFFER_PARCING(&asmblr);
+    COMMANDS_PARCING(&asmblr);
+    BUFFER_FILLING(&asmblr);
+    OUTPUT(&asmblr);
+    ASM_DUMP(&asmblr);
 
     return 0;
 }

@@ -1,6 +1,6 @@
 #include "commands.hpp"
 
-long int count_size_file(FILE* program) {
+long int count_size_file(FILE* program, int* code_error) {
 
     MY_ASSERT(program != NULL, FILE_ERROR);
 

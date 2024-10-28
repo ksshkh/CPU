@@ -41,30 +41,56 @@ struct Assembler {
 
 const int NUM_OF_LABELS = 20;
 
-int ProgramInput(Assembler* asmblr);
+#define ASM_CTOR(asmblr) AsmCtor((asmblr), (argc), (argv), (code_error))
 
-int AsmCtor(Assembler* asmblr, int argc, char* argv[]);
+#define PROGRAM_INPUT(asmblr) ProgramInput((asmblr), (code_error))
 
-int ElemetsCounter(Assembler* asmblr);
+#define ELEMENTS_COUNTER(asmblr) ElemetsCounter((asmblr), (code_error))
 
-int CommandsParcing(Assembler* asmblr);
+#define COMMANDS_PARCING(asmblr) CommandsParcing((asmblr), (code_error))
 
-int BufferParcing(Assembler* asmblr);
+#define BUFFER_PARCING(asmblr) BufferParcing((asmblr), (code_error))
 
-int BufferFilling(Assembler* asmblr);
+#define BUFFER_FILLING(asmblr) BufferFilling((asmblr), (code_error))
 
-int ArgumentsParcing(Assembler* asmblr, size_t i, char* argc);
+#define ARGUMENTS_PARCING(asmblr, i, argc) ArgumentsParcing((asmblr), (i), (argc), (code_error))
 
-int ArgumentsHandling(Assembler* asmblr, size_t i, char* argc);
+#define ARGUMENTS_HANDLING(asmblr, i, argc) ArgumentsHandling((asmblr), (i), (argc), (code_error))
 
-int Output(Assembler* asmblr);
+#define OUTPUT(asmblr) Output((asmblr), (code_error))
 
-int LabelInsert(char* cmd, Assembler* asmblr, int* j);
+#define LABEL_INSERT(cmd, asmblr, j) LabelInsert((cmd), (asmblr), (j), (code_error))
 
-int LabelFind(char* cmd, Assembler* asmblr, size_t label_len);
+#define LABEL_FIND(cmd, asmblr, label_len) LabelFind((cmd), (asmblr), (label_len), (code_error))
 
-void AsmDump(Assembler* asmblr);
+#define ASM_DUMP(asmblr) AsmDump((asmblr), (code_error))
 
-int AsmDtor(Assembler* asmblr);
+#define ASM_DTOR(asmblr) AsmDtor((asmblr), (code_error))
+
+void ProgramInput(Assembler* asmblr, int* code_error);
+
+void AsmCtor(Assembler* asmblr, int argc, char* argv[], int* code_error);
+
+void ElemetsCounter(Assembler* asmblr, int* code_error);
+
+void CommandsParcing(Assembler* asmblr, int* code_error);
+
+void BufferParcing(Assembler* asmblr, int* code_error);
+
+void BufferFilling(Assembler* asmblr, int* code_error);
+
+void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc, int* code_error);
+
+void ArgumentsHandling(Assembler* asmblr, size_t i, char* argc, int* code_error);
+
+void Output(Assembler* asmblr, int* code_error);
+
+void LabelInsert(char* cmd, Assembler* asmblr, int* j, int* code_error);
+
+int LabelFind(char* cmd, Assembler* asmblr, size_t label_len, int* code_error);
+
+void AsmDump(Assembler* asmblr, int* code_error);
+
+void AsmDtor(Assembler* asmblr, int* code_error);
 
 #endif // ASM_HPP
