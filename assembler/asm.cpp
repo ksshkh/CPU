@@ -2,8 +2,6 @@
 
 static const char* DEBUG_FILE_NAME = "../debug/assembler_dump.txt";
 
-const int NO_ARGUMENT = 0xDEDF00;
-
 void AsmCtor(Assembler* asmblr, int argc, char* argv[], int* code_error) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);

@@ -40,6 +40,7 @@ struct Assembler {
 };
 
 const int NUM_OF_LABELS = 20;
+const int NO_ARGUMENT = 0xDEDF00;
 
 #define ASM_CTOR(asmblr, code_error) AsmCtor((asmblr), (argc), (argv), (code_error))
 
