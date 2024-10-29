@@ -41,37 +41,13 @@ struct Assembler {
 
 const int NUM_OF_LABELS = 20;
 
-#define ASM_CTOR(asmblr) AsmCtor((asmblr), (argc), (argv), (code_error))
-
-#define PROGRAM_INPUT(asmblr) ProgramInput((asmblr), (code_error))
-
-#define ELEMENTS_COUNTER(asmblr) ElemetsCounter((asmblr), (code_error))
-
-#define COMMANDS_PARCING(asmblr) CommandsParcing((asmblr), (code_error))
-
-#define BUFFER_PARCING(asmblr) BufferParcing((asmblr), (code_error))
-
-#define BUFFER_FILLING(command_struct, buf_output, buff_indx) BufferFilling((command_struct), (buf_output), (buff_indx), (code_error))
-
-#define ARGUMENTS_PARCING(asmblr, i, argc) ArgumentsParcing((asmblr), (i), (argc), (code_error))
-
-#define ARGUMENTS_HANDLING(asmblr, i, argc) ArgumentsHandling((asmblr), (i), (argc), (code_error))
-
-#define OUTPUT(asmblr) Output((asmblr), (code_error))
-
-#define LABEL_INSERT(cmd, asmblr, j) LabelInsert((cmd), (asmblr), (j), (code_error))
-
-#define LABEL_FIND(cmd, asmblr, label_len) LabelFind((cmd), (asmblr), (label_len), (code_error))
-
-#define ASM_DUMP(asmblr) AsmDump((asmblr), (code_error))
-
-#define ASM_DTOR(asmblr) AsmDtor((asmblr), (code_error))
+#define ASM_CTOR(asmblr, code_error) AsmCtor((asmblr), (argc), (argv), (code_error))
 
 void ProgramInput(Assembler* asmblr, int* code_error);
 
 void AsmCtor(Assembler* asmblr, int argc, char* argv[], int* code_error);
 
-void ElemetsCounter(Assembler* asmblr, int* code_error);
+void ElementsCounter(Assembler* asmblr, int* code_error);
 
 void CommandsParcing(Assembler* asmblr, int* code_error);
 
@@ -79,9 +55,13 @@ void BufferParcing(Assembler* asmblr, int* code_error);
 
 void BufferFilling(const Command command_struct, int* buf_output, int* buff_indx, int* code_error);
 
-void ArgumentsParcing(Assembler* asmblr, size_t i, char* argc, int* code_error);
+void ArgumentsParcing(Command* command_struct, Assembler* asmblr, char* argc, int* code_error);
 
-void ArgumentsHandling(Assembler* asmblr, size_t i, char* argc, int* code_error);
+void GetArg(Command* command_struct, Assembler* asmblr, char* argc, int* code_error);
+
+Registers RegParcing(Command* command_struct, char* argc, int* code_error);
+
+StackElem_t ValueParcing(Command* command_struct, char* argc, int* code_error);
 
 void Output(Assembler* asmblr, int* code_error);
 

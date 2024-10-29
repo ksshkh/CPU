@@ -2,7 +2,7 @@
 
 static const char* DEBUG_FILE_NAME = "../debug/processor_dump.txt";
 
-void StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line, int* code_error) {
+void StackCtor(Stack_t* stk, size_t initCapacity, int* code_error, const char* file, const char* func, int line) {
 
     MY_ASSERT(stk != NULL, PTR_ERROR);
     MY_ASSERT(initCapacity != 0, SIZE_ERROR);
@@ -70,7 +70,7 @@ void StackPush(Stack_t* stk, StackElem_t el, int* code_error) {
     STACK_ASSERT(stk);
 
     if(stk->position == stk->capacity) {
-        STACK_REALLOCATION(stk, PUSH_ID);
+        StackReallocation(stk, PUSH_ID, code_error);
     }
 
     stk->data[stk->position] = el;
@@ -88,7 +88,7 @@ void StackPop(Stack_t* stk, StackElem_t* x, int* code_error) {
     MY_ASSERT(stk->position != 0, STACK_UNDERFLOW);
 
     if(stk->capacity > (stk->position - 1) * 4 && stk->position != 1) {
-        STACK_REALLOCATION(stk, POP_ID);
+        StackReallocation(stk, POP_ID, code_error);
     }
 
     stk->position--;
@@ -101,7 +101,7 @@ void StackPop(Stack_t* stk, StackElem_t* x, int* code_error) {
     STACK_ASSERT(stk);
 }
 
-void StackDump(Stack_t* stk, const char* file, const char* func, int line, int* code_error) {
+void StackDump(Stack_t* stk, int* code_error, const char* file, const char* func, int line) {
 
     FILE* debug_file = fopen(stk->debug_file_name, "a");
 
@@ -110,7 +110,7 @@ void StackDump(Stack_t* stk, const char* file, const char* func, int line, int* 
         fprintf(debug_file, "------------------------------------\n");
         fprintf(debug_file, "called from %s: %d (%s)\n", file, line, func);
 
-        MY_STRERR(debug_file);
+        my_strerr(debug_file, code_error);
 
         if(*code_error) {
             fprintf(stderr, "code error %d\n", *code_error);

@@ -17,25 +17,15 @@
 #endif
 
 #define STACK_ASSERT(stk) {                                           \
-    int err = STACK_VERIFICATION(stk);                                \
+    int err = StackVerification(stk, code_error);                     \
     if (err != NO_ERROR) {                                            \
-        STACK_DUMP(stk);                                              \
+        STACK_DUMP(stk, code_error);                                  \
     }                                                                 \
 }
 
-#define STACK_CTOR(stk, initCapacity) StackCtor((stk), (initCapacity), __FILE__, __func__, __LINE__, (code_error))
+#define STACK_CTOR(stk, initCapacity, code_error) StackCtor((stk), (initCapacity), (code_error), __FILE__, __func__, __LINE__)
 
-#define STACK_DTOR(stk) StackDtor((stk), (code_error))
-
-#define STACK_DUMP(stk) StackDump((stk), __FILE__, __func__, __LINE__, (code_error))
-
-#define STACK_PUSH(stk, el) StackPush((stk), (el), (code_error))
-
-#define STACK_POP(stk, x) StackPop((stk), (x), (code_error))
-
-#define STACK_VERIFICATION(stk) StackVerification((stk), (code_error))
-
-#define STACK_REALLOCATION(stk, id) StackReallocation((stk), (id), (code_error))
+#define STACK_DUMP(stk, code_error) StackDump((stk), (code_error), __FILE__, __func__, __LINE__)
 
 typedef int StackElem_t;
 
@@ -73,7 +63,7 @@ struct Stack_t {
     ON_DEBUG(Canary_t right_canary = 0;)
 };
 
-void StackCtor(Stack_t* stk, size_t initCapacity, const char* file, const char* func, int line, int* code_error);
+void StackCtor(Stack_t* stk, size_t initCapacity, int* code_error, const char* file, const char* func, int line);
 
 void StackDtor(Stack_t* stk, int* code_error);
 
@@ -81,7 +71,7 @@ void StackPush(Stack_t* stk, StackElem_t el, int* code_error);
 
 void StackPop(Stack_t* stk, StackElem_t* x, int* code_error);
 
-void StackDump(Stack_t* stk, const char* file, const char* func, int line, int* code_error);
+void StackDump(Stack_t* stk, int* code_error, const char* file, const char* func, int line);
 
 int StackVerification(const Stack_t* stk, int* code_error);
 

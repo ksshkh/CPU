@@ -2,15 +2,14 @@
 
 int main(void) {
 
-    int* code_error = (int*)calloc(1, sizeof(int));
-    *code_error = 0;
+    int code_error = 0;
 
     SPU spu = {};
 
-    SPU_CTOR(&spu);
-    SPU_RUN(&spu);
-    SPU_DUMP(&spu);
-    SPU_DTOR(&spu);
+    SPUCtor(&spu, &code_error);
+    SPURun (&spu, &code_error);
+    SPUDump(&spu, &code_error);
+    SPUDtor(&spu, &code_error);
 
     return 0;
 }

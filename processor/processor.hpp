@@ -29,20 +29,6 @@ struct SPU {
     StackElem_t* ram = NULL;
 };
 
-#define SPU_CTOR(spu) SPUCtor((spu), (code_error))
-
-#define CODE_READER(spu) CodeReader((spu), (code_error))
-
-#define SPU_RUN(spu) SPURun((spu), (code_error))
-
-#define GET_ARGUMENT(spu, current_cmd) GetArgument((spu), (current_cmd), (code_error))
-
-#define DRAW(spu, line) Draw((spu), (line), (code_error))
-
-#define SPU_DUMP(spu) SPUDump((spu), (code_error))
-
-#define SPU_DTOR(spu) SPUDtor((spu), (code_error))
-
 void SPUCtor(SPU* spu, int* code_error);
 
 void CodeReader(SPU* spu, int* code_error);

@@ -2,31 +2,25 @@
 
 int main(void) {
 
-    Stack_t stk = {};
-    StackElem_t x = 0;
+    Stack_t stk    = {};
+    StackElem_t x  = 0;
+    int code_error = 0;
 
-    int* code_error = (int*)calloc(1, sizeof(int));
-    *code_error = 0;
+    STACK_CTOR(&stk, 5, &code_error);
 
-    STACK_CTOR(&stk, 5);
-
-    // for(int i = 0; i < 10; i++) {
-    //     CHECKED_ StackPush(&stk, i * 10);
-    //     STACK_DUMP(&stk);
-    // }
-    STACK_PUSH(&stk, 3);
-    STACK_PUSH(&stk, 78);
-    STACK_POP(&stk, &x);
+    StackPush(&stk,  3, &code_error);
+    StackPush(&stk, 78, &code_error);
+    StackPop (&stk, &x, &code_error);
 
     // stk.data = NULL;
 
     for(int i = 0; i < 10; i++) {
-        STACK_PUSH(&stk, 7);
+        StackPush(&stk, 7, &code_error);
     }
 
-    STACK_DUMP(&stk);
+    STACK_DUMP(&stk, &code_error);
 
-    STACK_DTOR(&stk);
+    StackDtor(&stk, &code_error);
 
     return 0;
 }

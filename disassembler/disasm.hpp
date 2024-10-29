@@ -20,16 +20,6 @@ struct Disassembler {
     size_t size_file = 0;
 };
 
-#define DISASM_CTOR(disasmblr) DisasmCtor((disasmblr), (code_error))
-
-#define DISASM_RUN(disasmblr) DisasmRun((disasmblr), (code_error))
-
-#define PRINT_ARGUMENT(buff, i, result) PrintArgument((buff), (i), (result), (code_error))
-
-#define PRINT_REGS(reg, result) PrintRegs((reg), (result), (code_error))
-
-#define DISASM_DTOR(disasmblr) DisasmDtor((disasmblr), (code_error))
-
 void DisasmCtor(Disassembler* disasmblr, int* code_error);
 
 void DisasmRun(Disassembler* disasmblr, int* code_error);

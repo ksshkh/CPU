@@ -31,14 +31,12 @@ enum Errors {
 
 #define CHECKED_ if(!code_error) code_error |=
 
+#define CODE_ERROR int *code_error
+
 #define MY_ASSERT(expression, err) if(!(expression)) {                                                                      \
     fprintf(stderr, ERR("%s: %d (%s) My assertion failed: \"" #expression "\""), __FILE__, __LINE__, __func__);             \
     *code_error |= err;                                                                                                     \
 }
-
-// static int code_error = 0;
-
-#define MY_STRERR(stream) my_strerr((stream), (code_error))
 
 void my_strerr(FILE* stream, int* code_error);
 

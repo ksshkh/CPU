@@ -41,12 +41,12 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
 
             if(disasmblr->buf_input[i] & MEM_MASK) {
                 fprintf(result, "[");
-                PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
+                PrintArgument(disasmblr->buf_input, &i, result, code_error);
                 fprintf(result, "]\n");
                 continue;
             }
 
-            PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
+            PrintArgument(disasmblr->buf_input, &i, result, code_error);
             fprintf(result, "\n");
         }
         else if((disasmblr->buf_input[i] & CHECK_MASK) == CMD_POP) {
@@ -58,12 +58,12 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
             fprintf(result, "pop ");
             if(disasmblr->buf_input[i] & MEM_MASK) {
                 fprintf(result, "[");
-                PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
+                PrintArgument(disasmblr->buf_input, &i, result, code_error);
                 fprintf(result, "]\n");
                 continue;
             }
 
-            PRINT_ARGUMENT(disasmblr->buf_input, &i, result);
+            PrintArgument(disasmblr->buf_input, &i, result, code_error);
             fprintf(result, "\n");
         }
         else if(disasmblr->buf_input[i] == CMD_OUT) {
@@ -158,14 +158,14 @@ void PrintArgument(int* buff, size_t* i, FILE* result, int* code_error) {
 
     if((buff[*i] & REG_MASK) && (buff[*i] & ARGC_MASK)) {
         (*i)++;
-        PRINT_REGS(buff[*i], result);
+        PrintRegs(buff[*i], result, code_error);
         fprintf(result, " + ");
         (*i)++;
         fprintf(result, "%d", buff[*i]);
     }
     else if(buff[*i] & REG_MASK) {
         (*i)++;
-        PRINT_REGS(buff[*i], result);
+        PrintRegs(buff[*i], result, code_error);
     }
     else if(buff[*i] & ARGC_MASK) {
         (*i)++;
