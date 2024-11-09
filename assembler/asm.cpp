@@ -99,8 +99,7 @@ void BufferParcing(Assembler* asmblr, int* code_error) {
             i++;
         }
 
-        if (j == asmblr->n_cmd)
-        {
+        if (j == asmblr->n_cmd) {
             break;
         }
 
