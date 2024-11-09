@@ -83,8 +83,9 @@ void StackPush(Stack_t* stk, StackElem_t el, int* code_error) {
 }
 
 void StackPop(Stack_t* stk, StackElem_t* x, int* code_error) {
-    MY_ASSERT(x != NULL, PTR_ERROR);
     STACK_ASSERT(stk);
+
+    MY_ASSERT(x != NULL, PTR_ERROR);
     MY_ASSERT(stk->position != 0, STACK_UNDERFLOW);
 
     if(stk->capacity > (stk->position - 1) * 4 && stk->position != 1) {
@@ -92,6 +93,7 @@ void StackPop(Stack_t* stk, StackElem_t* x, int* code_error) {
     }
 
     stk->position--;
+
     *x = stk->data[stk->position];
     stk->data[stk->position] = POISON;
 
@@ -110,7 +112,7 @@ void StackDump(Stack_t* stk, int* code_error, const char* file, const char* func
         fprintf(debug_file, "------------------------------------\n");
         fprintf(debug_file, "called from %s: %d (%s)\n", file, line, func);
 
-        my_strerr(debug_file, code_error);
+        ErrorsPrint(debug_file, code_error);
 
         if(*code_error) {
             fprintf(stderr, "code error %d\n", *code_error);

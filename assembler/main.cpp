@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
 
     Assembler asmblr = {0};
 
-    ASM_CTOR       (&asmblr, &code_error);
+    AsmCtor        (&asmblr, argc, argv, &code_error);
     BufferParcing  (&asmblr, &code_error);
     CommandsParcing(&asmblr, &code_error);
     Output         (&asmblr, &code_error);

@@ -13,36 +13,37 @@
 
 struct Label {
     int address = 0;
-    char* name = NULL;
+    char* name  = NULL;
 };
 
 struct Command {
     char *cmd = NULL;
+
     int cmd_code = 0;
-    int argc = 0;
-    int label = 0;
+
+    int argc     = 0;
+    int label    = 0;      
+
     Registers reg = REG_DEFAULT;
 };
 
 struct Assembler {
-    const char* file_name_input = NULL;
+    const char* file_name_input  = NULL;
     const char* file_name_output = NULL;
 
-    char* buf_input = NULL;
-    int* buf_output = NULL;
+    char* buf_input  = NULL;
+    int*  buf_output = NULL;
 
     size_t size_file = 0;
-    size_t n_cmd = 0;
-    size_t n_words = 0;
+    size_t n_cmd     = 0;
+    size_t n_words   = 0;
 
     Command* cmds = NULL;
-    Label* lbls = NULL;
+    Label* lbls   = NULL;
 };
 
 const int NUM_OF_LABELS = 20;
-const int NO_ARGUMENT = 0xDEDF00;
-
-#define ASM_CTOR(asmblr, code_error) AsmCtor((asmblr), (argc), (argv), (code_error))
+const int NO_ARGUMENT = 0xDEAD;
 
 void ProgramInput(Assembler* asmblr, int* code_error);
 

@@ -17,7 +17,7 @@ struct Disassembler {
 
     int* buf_input = NULL;
 
-    size_t size_file = 0;
+    size_t size_code = 0;
 };
 
 void DisasmCtor(Disassembler* disasmblr, int* code_error);

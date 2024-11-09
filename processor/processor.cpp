@@ -28,12 +28,12 @@ void CodeReader(SPU* spu, int* code_error) {
     FILE* program = fopen(spu->file_name_input, "rb");
     MY_ASSERT(program != NULL, FILE_ERROR);
 
-    spu->code_size = COUNT_SIZE_FILE(program) / sizeof(int);
+    spu->code_size = count_size_file(program, code_error) / sizeof(int);
 
     spu->code = (int*)calloc(spu->code_size, sizeof(int));
     MY_ASSERT(spu->code != NULL, PTR_ERROR);
 
-    fread(spu->code, sizeof(int), spu->code_size, program);
+    MY_ASSERT(fread(spu->code, sizeof(int), spu->code_size, program) == spu->code_size, READ_ERROR);
 
     MY_ASSERT(fclose(program) == 0,FILE_ERROR);
 
@@ -58,8 +58,7 @@ void SPURun(SPU* spu, int* code_error) {
             STACK_DUMP(&(spu->stk), code_error);
         }
         else if((current_cmd & CHECK_MASK) == CMD_PUSH) {
-            StackElem_t* ptr = NULL;
-            ptr = GetArgument(spu, current_cmd, code_error);
+            StackElem_t* ptr = GetArgument(spu, current_cmd, code_error);
 
             MY_ASSERT(ptr != NULL, PTR_ERROR);
 
@@ -71,8 +70,7 @@ void SPURun(SPU* spu, int* code_error) {
             }
         }
         else if((current_cmd & CHECK_MASK) == CMD_POP) {
-            StackElem_t* ptr = NULL;
-            ptr = GetArgument(spu, current_cmd, code_error);
+            StackElem_t* ptr = GetArgument(spu, current_cmd, code_error);
 
             if(ptr != NULL) {
                 StackPop(&(spu->stk), ptr, code_error);
@@ -320,22 +318,31 @@ void SPUDump(SPU* spu, int* code_error) {
                 for(size_t i = 0; i < spu->code_size; i++) {
                     fprintf(debug, "%3ld|", i);
                 }
+
                 fprintf(debug, "\n");
+
                 for(size_t i = 0; i < spu->code_size; i++) {
                     fprintf(debug, "----");
                 }
+
                 fprintf(debug, "\n");
+
                 for(size_t i = 0; i < spu->code_size; i++) {
                     fprintf(debug, "%3d|", spu->code[i]);
                 }
+
                 fprintf(debug, "\n");
+
                 for(size_t i = 0; i < spu->ip; i++) {
                     fprintf(debug, "    ");
                 }
+
                 fprintf(debug, "^\n");
+
                 for(size_t i = 0; i < spu->ip; i++) {
                     fprintf(debug, "    ");
                 }
+
                 fprintf(debug, "ip = %ld\n", spu->ip);
                 }
             else {
@@ -345,9 +352,11 @@ void SPUDump(SPU* spu, int* code_error) {
 
             if(spu->registers != NULL) {
                 fprintf(debug, "registers: ");
+
                 for(size_t i = 0; i < REG_SIZE; i++) {
                     fprintf(debug, "%d ", spu->registers[i]);
                 }
+
                 fprintf(debug, "\n");
             }
             else {

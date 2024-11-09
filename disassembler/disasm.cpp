@@ -7,15 +7,17 @@ void DisasmCtor(Disassembler* disasmblr, int* code_error) {
     disasmblr->file_name_input = "../programs/result.bin";
     disasmblr->file_name_output = "../programs/retranslation.txt";
 
+    // function
+
     FILE* program = fopen(disasmblr->file_name_input, "rb");
     MY_ASSERT(program != NULL, FILE_ERROR);
 
-    disasmblr->size_file = COUNT_SIZE_FILE(program) / sizeof(int);
+    disasmblr->size_code = count_size_file(program, code_error) / sizeof(int);      // ne deliti i in processor
 
-    disasmblr->buf_input = (int*)calloc(disasmblr->size_file, sizeof(int));
+    disasmblr->buf_input = (int*)calloc(disasmblr->size_code, sizeof(int));
     MY_ASSERT(disasmblr->buf_input != NULL, PTR_ERROR);
 
-    fread(disasmblr->buf_input, sizeof(int), disasmblr->size_file, program);
+    fread(disasmblr->buf_input, sizeof(int), disasmblr->size_code, program);
 
     MY_ASSERT(fclose(program) == 0, FILE_ERROR);
 
@@ -28,7 +30,7 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
     FILE* result = fopen(disasmblr->file_name_output, "a");
     MY_ASSERT(result != NULL, FILE_ERROR);
 
-    for(size_t i = 0; i < disasmblr->size_file; i++) {
+    for(size_t i = 0; i <= disasmblr->size_code; i++) {
 
         if(disasmblr->buf_input[i] == CMD_HLT) {
             fprintf(result, "hlt\n");
@@ -56,6 +58,7 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
             }
 
             fprintf(result, "pop ");
+
             if(disasmblr->buf_input[i] & MEM_MASK) {
                 fprintf(result, "[");
                 PrintArgument(disasmblr->buf_input, &i, result, code_error);
@@ -94,44 +97,28 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
             fprintf(result, "cos\n");
         }
         else if(disasmblr->buf_input[i] == CMD_JA) {
-            fprintf(result, "ja ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "ja %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_JAE) {
-            fprintf(result, "jae ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "jae %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_JB) {
-            fprintf(result, "jb ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "jb %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_JBE) {
-            fprintf(result, "jbe ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "jbe %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_JE) {
-            fprintf(result, "je ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "je %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_JNE) {
-            fprintf(result, "jne ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "jne %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_JMP) {
-            fprintf(result, "jmp ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "jmp %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_CALL) {
-            fprintf(result, "call ");
-            i++;
-            fprintf(result, "%d\n", disasmblr->buf_input[i]);
+            fprintf(result, "call %d\n", disasmblr->buf_input[++i]);
         }
         else if(disasmblr->buf_input[i] == CMD_RET) {
             fprintf(result, "ret\n");
@@ -208,6 +195,6 @@ void DisasmDtor(Disassembler* disasmblr, int* code_error) {
     free(disasmblr->buf_input);
     disasmblr->buf_input = NULL;
 
-    disasmblr->size_file = 0;
+    disasmblr->size_code = 0;
 
 }

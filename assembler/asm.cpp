@@ -1,11 +1,11 @@
 #include "asm.hpp"
 
-static const char* DEBUG_FILE_NAME = "../debug/assembler_dump.txt";
+static const char* DEBUG_FILE_NAME = "../debug/assembler_dump.log";
 
 void AsmCtor(Assembler* asmblr, int argc, char* argv[], int* code_error) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
-    MY_ASSERT(argv != NULL, PTR_ERROR);
+    MY_ASSERT(argv   != NULL, PTR_ERROR);
 
     if(argc == 1) {
         asmblr->file_name_input = "../programs/program.txt";
@@ -26,10 +26,6 @@ void AsmCtor(Assembler* asmblr, int argc, char* argv[], int* code_error) {
     for(int i = 0; i < NUM_OF_LABELS; i++) {
         asmblr->lbls[i].address = VALUE_DEFAULT;
     }
-
-    asmblr->buf_output = (int*)calloc(asmblr->n_words, sizeof(int));
-    MY_ASSERT(asmblr->buf_output != NULL, PTR_ERROR);
-
 }
 
 void ProgramInput(Assembler* asmblr, int* code_error) {
@@ -41,10 +37,12 @@ void ProgramInput(Assembler* asmblr, int* code_error) {
 
     asmblr->size_file = count_size_file(program, code_error);
 
-    asmblr->buf_input = (char*)calloc(asmblr->size_file, sizeof(char));
+    asmblr->buf_input = (char*)calloc(asmblr->size_file + 1, sizeof(char));
     MY_ASSERT(asmblr->buf_input, PTR_ERROR);
 
-    fread(asmblr->buf_input, sizeof(char), asmblr->size_file, program);
+    MY_ASSERT(fread(asmblr->buf_input, sizeof(char), asmblr->size_file, program) == asmblr->size_file, READ_ERROR);
+
+    asmblr->buf_input[asmblr->size_file] = '\0';
 
     MY_ASSERT(fclose(program) == 0, FILE_ERROR);
 
@@ -54,45 +52,37 @@ void ElementsCounter(Assembler* asmblr, int* code_error) {
 
     MY_ASSERT(asmblr != NULL, PTR_ERROR);
 
-    int counter_words  = 0;
     int counter_labels = 0;
-    int counter_cmds   = 0;
 
     bool is_begin = false;
 
     for(size_t i = 0; i < asmblr->size_file; i++) {
-
         if(isspace(asmblr->buf_input[i]) && is_begin) {
 
-            if(asmblr->buf_input[i] == '\n') {
-                if(asmblr->buf_input[i - 1] != '\n') {
-                    counter_cmds++;
-                }
+            if((asmblr->buf_input[i] == '\n' || asmblr->buf_input[i] == '\0') && asmblr->buf_input[i - 1] != '\n') {
+                    asmblr->n_cmd++;
             }
 
             if(isspace(asmblr->buf_input[i + 1])) {
                 continue;
             }
 
-            counter_words++;
+            asmblr->n_words++;
         }
         else if(!isspace(asmblr->buf_input[i])) {
             is_begin = true;
         }
 
         if(asmblr->buf_input[i] == '+') {
-                counter_words--;
+                asmblr->n_words--;
         }
         else if(asmblr->buf_input[i] == ':') {
                 counter_labels++;
         }
     }
 
-    counter_words   = counter_words - counter_labels + 1;
-
-    asmblr->n_words = counter_words;
-    asmblr->n_cmd   = counter_cmds + 1;
-
+    asmblr->n_cmd++;
+    asmblr->n_words -= counter_labels - 1;
 }
 
 void BufferParcing(Assembler* asmblr, int* code_error) {
@@ -102,33 +92,30 @@ void BufferParcing(Assembler* asmblr, int* code_error) {
     asmblr->cmds = (Command*)calloc(asmblr->n_cmd, sizeof(Command));
     MY_ASSERT(asmblr->cmds, PTR_ERROR);
 
-    size_t i = 0;
-    while(isspace(asmblr->buf_input[i])) {
-        i++;
-    }
+    size_t j = 0;
 
-    asmblr->cmds[0].cmd      = asmblr->buf_input + i;
-    asmblr->cmds[0].label    = VALUE_DEFAULT;
-    asmblr->cmds[0].cmd_code = CMD_DEFAULT;
-    int j = 1;
-
-    for(i; i < asmblr->size_file; i++) {
-
-        if(asmblr->buf_input[i] == '\n') {
-
-            while(isspace(asmblr->buf_input[i + 1])) {
-                asmblr->buf_input[i] = '\0';
-                i++;
-            }
-
-            asmblr->buf_input[i] = '\0';
-            asmblr->cmds[j].cmd      = (asmblr->buf_input + i + 1);
-            asmblr->cmds[j].label    = VALUE_DEFAULT;
-            asmblr->cmds[j].cmd_code = CMD_DEFAULT;
-            j++;
+    for(size_t i = 0; i < asmblr->size_file; i++) {
+        while (isspace(asmblr->buf_input[i]) && i < asmblr->size_file) {
+            i++;
         }
-    }
 
+        if (j == asmblr->n_cmd)
+        {
+            break;
+        }
+
+        asmblr->cmds[j].cmd = asmblr->buf_input + i;
+
+        while (i < asmblr->size_file && asmblr->buf_input[i] != '\n') {
+            i++;
+        }
+
+        asmblr->buf_input[i] = '\0';
+
+        asmblr->cmds[j].label    = VALUE_DEFAULT;
+        asmblr->cmds[j].cmd_code = CMD_DEFAULT;
+        j++;
+    }
 }
 
 void CommandsParcing(Assembler* asmblr, int* code_error) {
@@ -298,15 +285,11 @@ void GetArg(Command* command_struct, Assembler* asmblr, char* argc, int* code_er
     MY_ASSERT(argc != NULL, PTR_ERROR);
     MY_ASSERT(command_struct != NULL, PTR_ERROR);
 
-    if(RegParcing(command_struct, argc, code_error) != REG_DEFAULT) {
-        command_struct->reg = RegParcing(command_struct, argc, code_error);
+    if((command_struct->reg = RegParcing(command_struct, argc, code_error)) != REG_DEFAULT) {
         char* arg = argc + 5;
         command_struct->argc = ValueParcing(command_struct, arg, code_error);
     }
-    else if(ValueParcing(command_struct, argc, code_error) != NO_ARGUMENT) {
-        command_struct->argc = ValueParcing(command_struct, argc, code_error);
-    }
-    else {
+    else if((command_struct->argc = ValueParcing(command_struct, argc, code_error)) == NO_ARGUMENT) {
         size_t label_len = strlen(argc);
         int addr = LabelFind(argc, asmblr, label_len, code_error);
 
@@ -397,6 +380,7 @@ void LabelInsert(char* cmd, Assembler* asmblr, int* ip, int* code_error) {
     MY_ASSERT(ip     != NULL, PTR_ERROR);
 
     size_t i = 0;
+
     while(i < NUM_OF_LABELS) {
 
         if(asmblr->lbls[i].name != NULL) {
@@ -462,7 +446,7 @@ void AsmDump(Assembler* asmblr, int* code_error) {
 
     if(debug != NULL) {
 
-        my_strerr(debug, code_error);
+        ErrorsPrint(debug, code_error);
 
         if(*code_error) {
             fprintf(stderr, "code error %d\n", *code_error);
@@ -473,10 +457,14 @@ void AsmDump(Assembler* asmblr, int* code_error) {
 
             if(asmblr->cmds != NULL) {
                 fprintf(debug, "\ncommands table:\n\n");
+                fprintf(debug, "______________________________________________________________________\n");
+                fprintf(debug, "|    cmd:     |   cmd code: |hex argument:|  register:  |   label:    |\n");
+                fprintf(debug, "|_____________|_____________|_____________|_____________|_____________|\n");
 
                 for(size_t i = 0; i < asmblr->n_cmd; i++) {
-                    fprintf(debug, "%s\n", asmblr->cmds[i].cmd);
-                    fprintf(debug, "cmd code: %d argument: %d register: %d label: %d\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
+                    fprintf(debug, "|%13s|", asmblr->cmds[i].cmd);
+                    fprintf(debug, "%13d|%13x|%13d|%13d|\n", asmblr->cmds[i].cmd_code, asmblr->cmds[i].argc, asmblr->cmds[i].reg, asmblr->cmds[i].label);
+                    fprintf(debug, "|_____________|_____________|_____________|_____________|_____________|\n");
                 }
             }
             else {
