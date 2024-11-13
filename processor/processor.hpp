@@ -11,8 +11,8 @@
 
 const size_t InitCapacity = 5;
 const size_t REG_SIZE = 4;
-const size_t RAM_SIZE = 49;
-const size_t ram_line = 7;
+const size_t RAM_SIZE = 10 * 10;
+const size_t ram_line = 10;
 
 struct SPU {
     const char* file_name_input = NULL;

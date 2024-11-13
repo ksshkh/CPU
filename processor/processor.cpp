@@ -250,6 +250,13 @@ void SPURun(SPU* spu, int* code_error) {
 
             Draw(spu, line, code_error);
         }
+        else if(current_cmd == CMD_MEOU) {
+            StackElem_t x = 0;
+            StackPop(&(spu->stk), &x, code_error);
+            for(int i = 0; i < x; i++) {
+                fprintf(stderr, "meow\n");
+            }
+        }
 
         (spu->ip)++;
     }

@@ -7,12 +7,10 @@ void DisasmCtor(Disassembler* disasmblr, int* code_error) {
     disasmblr->file_name_input = "../programs/result.bin";
     disasmblr->file_name_output = "../programs/retranslation.txt";
 
-    // function
-
     FILE* program = fopen(disasmblr->file_name_input, "rb");
     MY_ASSERT(program != NULL, FILE_ERROR);
 
-    disasmblr->size_code = count_size_file(program, code_error) / sizeof(int);      // ne deliti i in processor
+    disasmblr->size_code = count_size_file(program, code_error) / sizeof(int);
 
     disasmblr->buf_input = (int*)calloc(disasmblr->size_code, sizeof(int));
     MY_ASSERT(disasmblr->buf_input != NULL, PTR_ERROR);
@@ -128,6 +126,9 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
         }
         else if(disasmblr->buf_input[i] == CMD_COUT) {
             fprintf(result, "cout\n");
+        }
+        else if(disasmblr->buf_input[i] == CMD_MEOW) {
+            fprintf(result, "meow\n");
         }
         else {
             fprintf(stderr, "SNTXERR: '%d'\n", disasmblr->buf_input[i]);

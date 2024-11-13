@@ -235,6 +235,9 @@ void CommandsParcing(Assembler* asmblr, int* code_error) {
             else if(!strcmp(cmd, "draw")) {
                 asmblr->cmds[i].cmd_code = CMD_DRAW;
             }
+            else if(!strcmp(cmd, "meow")) {
+                asmblr->cmds[i].cmd_code = CMD_MEOW;
+            }
             else if(strchr(cmd, ':') != NULL) {
                 char* doubledot = strchr(cmd, ':');
                 *doubledot = '\0';
