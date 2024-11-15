@@ -87,7 +87,7 @@ void SPURun(SPU* spu, int* code_error) {
         }
         else if(current_cmd == CMD_IN) {
             StackElem_t x = 0;
-            fprintf(stderr, "enter a number to push pls\n");
+            printf("enter a number to push pls\n");
             scanf("%d", &x);
             StackPush(&(spu->stk), x, code_error);
         }
@@ -242,7 +242,7 @@ void SPURun(SPU* spu, int* code_error) {
         else if(current_cmd == CMD_COUT) {
             StackElem_t x = 0;
             StackPop(&(spu->stk), &x, code_error);
-            fprintf(stderr, "%c\n", x);
+            printf("%c\n", x);
         }
         else if(current_cmd == CMD_DRAW) {
             StackElem_t line = 0;
@@ -250,11 +250,11 @@ void SPURun(SPU* spu, int* code_error) {
 
             Draw(spu, line, code_error);
         }
-        else if(current_cmd == CMD_MEOU) {
+        else if(current_cmd == CMD_MEOW) {
             StackElem_t x = 0;
             StackPop(&(spu->stk), &x, code_error);
             for(int i = 0; i < x; i++) {
-                fprintf(stderr, "meow\n");
+                printf("meow\n");
             }
         }
 
@@ -297,14 +297,14 @@ void Draw(SPU* spu, StackElem_t line, int* code_error) {
     for(size_t i = 1; i <= (line * line); i++) {
 
         if(spu->ram[i - 1] != 0) {
-            fprintf(stderr, "*");
+            printf("*");
         }
         else {
-            fprintf(stderr, " ");
+            printf(" ");
         }
 
         if(i % line == 0) {
-            fprintf(stderr, "\n");
+            printf("\n");
         }
     }
 }
