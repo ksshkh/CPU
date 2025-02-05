@@ -2,3 +2,6 @@
 *.exe
 program.txt
 .vscode
+proc
+asm
+disasm

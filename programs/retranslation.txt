@@ -1,0 +1,19 @@
+in
+pop ax
+push ax
+push ax
+push 1
+sub
+push ax
+push 1
+sub
+pop ax
+push ax
+push 1
+je 25
+call 5
+mul
+ret
+out
+hlt
+dump

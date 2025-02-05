@@ -24,6 +24,5 @@ end:
     mul
     ret
 
-push bx
 out
 hlt
