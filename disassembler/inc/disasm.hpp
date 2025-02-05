@@ -7,9 +7,9 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "../errors.hpp"
-#include "../stack/stack.hpp"
-#include "../commands.hpp"
+#include "../../inc/errors.hpp"
+#include "../../inc/stack.hpp"
+#include "../../inc/commands.hpp"
 
 struct Disassembler {
     const char* file_name_input = NULL;

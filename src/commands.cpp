@@ -1,4 +1,4 @@
-#include "commands.hpp"
+#include "../inc/commands.hpp"
 
 long int count_size_file(FILE* program, int* code_error) {
 

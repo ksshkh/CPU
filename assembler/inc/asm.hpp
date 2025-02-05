@@ -7,9 +7,9 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "../errors.hpp"
-#include "../stack/stack.hpp"
-#include "../commands.hpp"
+#include "../../inc/errors.hpp"
+#include "../../inc/stack.hpp"
+#include "../../inc/commands.hpp"
 
 struct Label {
     int address = 0;
@@ -22,7 +22,7 @@ struct Command {
     int cmd_code = 0;
 
     int argc     = 0;
-    int label    = 0;      
+    int label    = 0;
 
     Registers reg = REG_DEFAULT;
 };

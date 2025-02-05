@@ -1,4 +1,4 @@
-#include "disasm.hpp"
+#include "../inc/disasm.hpp"
 
 int main(void) {
 

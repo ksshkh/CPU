@@ -1,4 +1,4 @@
-#include "stack.hpp"
+#include "../inc/stack.hpp"
 
 static const char* DEBUG_FILE_NAME = "../debug/processor_dump.txt";
 

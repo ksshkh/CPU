@@ -7,9 +7,9 @@ CFLAGS = -c -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-
 	-Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing   \
 	-Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE
 
-INCLUDES = ./processor.hpp ../errors.hpp ../stack/stack.hpp ../commands.hpp
+INCLUDES = ./inc/processor.hpp ../inc/errors.hpp ../inc/stack.hpp ../inc/commands.hpp
 
-SOURCES = ./main.cpp ./processor.cpp ../errors.cpp ../stack/stack.cpp ../commands.cpp
+SOURCES = ./src/main.cpp ./src/processor.cpp ../src/errors.cpp ../src/stack.cpp ../src/commands.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
@@ -25,7 +25,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 .PHONY: clean
 clean:
-	rm -rf *.o
+	rm -rf ./src/*.o
 	rm -rf ../*.o
 	rm -rf ../*/*.o
 	rm -rf *.bin

@@ -1,4 +1,4 @@
-#include "processor.hpp"
+#include "../inc/processor.hpp"
 
 int main(void) {
 

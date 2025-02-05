@@ -24,9 +24,6 @@ end:
     mul
     ret
 
-pop bx
-push bx
 push bx
 out
-meow
 hlt

@@ -1,10 +1,10 @@
-#include "disasm.hpp"
+#include "../inc/disasm.hpp"
 
 void DisasmCtor(Disassembler* disasmblr, int* code_error) {
 
     MY_ASSERT(disasmblr != NULL, PTR_ERROR);
 
-    disasmblr->file_name_input = "../programs/result.bin";
+    disasmblr->file_name_input  = "../programs/result.bin";
     disasmblr->file_name_output = "../programs/retranslation.txt";
 
     FILE* program = fopen(disasmblr->file_name_input, "rb");
@@ -126,9 +126,6 @@ void DisasmRun(Disassembler* disasmblr, int* code_error) {
         }
         else if(disasmblr->buf_input[i] == CMD_COUT) {
             fprintf(result, "cout\n");
-        }
-        else if(disasmblr->buf_input[i] == CMD_MEOW) {
-            fprintf(result, "meow\n");
         }
         else {
             fprintf(stderr, "SNTXERR: '%d'\n", disasmblr->buf_input[i]);

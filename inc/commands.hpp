@@ -29,7 +29,6 @@ enum Commands_code {
     CMD_JE,
     CMD_JNE,
     CMD_JMP,
-    CMD_MEOW,
 
     CMD_CALL,
     CMD_RET,

@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../stack/stack.hpp"
-#include "../errors.hpp"
-#include "../commands.hpp"
+#include "../../inc/errors.hpp"
+#include "../../inc/stack.hpp"
+#include "../../inc/commands.hpp"
 
 const size_t InitCapacity = 5;
 const size_t REG_SIZE = 4;

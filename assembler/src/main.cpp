@@ -1,4 +1,4 @@
-#include "asm.hpp"
+#include "../inc/asm.hpp"
 
 int main(int argc, char* argv[]) {
 

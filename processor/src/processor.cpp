@@ -1,4 +1,4 @@
-#include "processor.hpp"
+#include "../inc/processor.hpp"
 
 static const char* DEBUG_FILE_NAME = "../debug/processor_dump.txt";
 
@@ -249,13 +249,6 @@ void SPURun(SPU* spu, int* code_error) {
             StackPop(&(spu->stk), &line, code_error);
 
             Draw(spu, line, code_error);
-        }
-        else if(current_cmd == CMD_MEOW) {
-            StackElem_t x = 0;
-            StackPop(&(spu->stk), &x, code_error);
-            for(int i = 0; i < x; i++) {
-                printf("meow\n");
-            }
         }
 
         (spu->ip)++;
