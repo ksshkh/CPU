@@ -248,7 +248,7 @@ void SPURun(SPU* spu, int* code_error) {
             StackElem_t line = 0;
             StackPop(&(spu->stk), &line, code_error);
 
-            Draw(spu, line, code_error);
+            if(line * line <= RAM_SIZE) Draw(spu, line, code_error);
         }
 
         (spu->ip)++;
